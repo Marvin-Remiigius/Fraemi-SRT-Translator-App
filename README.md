@@ -147,6 +147,6 @@ Contributions are welcome! Please open issues or submit pull requests.
 
 ---
 
-## 👨Built by
+## Built by
 
 Fraemi Vision — [fraemivision.in](https://fraemivision.in)
