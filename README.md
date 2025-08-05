@@ -4,7 +4,7 @@
 
 ---
 
-## 🚀 Project Overview
+## Project Overview
 
 The Fraemi SRT Translator is architected as a modern web application with a distinct **frontend** and **backend**.
 
@@ -13,23 +13,23 @@ The Fraemi SRT Translator is architected as a modern web application with a dist
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-- 🔐 **Secure User Authentication**  
+- **Secure User Authentication**  
   Users can register and log in to secure accounts. Passwords are encrypted using Bcrypt.
 
-- 📁 **Private Project Dashboards**  
+- **Private Project Dashboards**  
   Authenticated users have access only to their projects via persistent login sessions.
 
-- ⚙️ **Scalable Architecture**  
+- **Scalable Architecture**  
   Backend uses Flask's Application Factory pattern and Blueprints for maintainability and scalability.
 
-- 🤖 **AI Integration Ready**  
+- **AI Integration Ready**  
   Designed for seamless integration with AI translation services (e.g., OpenAI API).
 
 ---
 
-## 🧱 Technology Stack
+## Technology Stack
 
 ### Backend
 - **Framework:** Flask
@@ -43,7 +43,7 @@ The Fraemi SRT Translator is architected as a modern web application with a dist
 
 ---
 
-## ⚙️ Backend Setup & Installation
+## Backend Setup & Installation
 
 ### 1. Prerequisites
 - Python 3.10 or higher
@@ -84,7 +84,7 @@ This creates `database.db` and all necessary tables.
 
 ---
 
-## ▶️ Running the Server
+## ▶ Running the Server
 
 Start the development server with:
 
@@ -93,13 +93,13 @@ python backend/run.py
 ```
 
 The API will now be available at:  
-📍 **http://127.0.0.1:5000**
+    **http://127.0.0.1:5000**
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
-### 🔐 Authentication (`/auth`)
+### Authentication (`/auth`)
 
 | Method | Endpoint         | Description                  |
 |--------|------------------|------------------------------|
@@ -107,7 +107,7 @@ The API will now be available at:
 | POST   | `/auth/login`    | Log in a user                |
 | POST   | `/auth/logout`   | Log out the current session  |
 
-### 📁 Projects (`/api`)  
+### Projects (`/api`)  
 *Note: Requires authentication.*
 
 | Method | Endpoint          | Description                             |
@@ -117,36 +117,36 @@ The API will now be available at:
 
 ---
 
-## 🗺️ Project Roadmap
+## Project Roadmap
 
-### ✅ Backend
+### Backend
 - [x] User authentication & session management
 - [x] Project creation & retrieval
 - [ ] SRT file upload & management
 - [ ] Integration with OpenAI API for translations
 
-### 🚧 Frontend (Planned)
+### Frontend (Planned)
 - [ ] User registration & login UI
 - [ ] Project dashboard & file management UI
 
-### 🌐 Full Stack
+### Full Stack
 - [ ] Team collaboration features
 - [ ] Subscription plans for B2B clients
 
 ---
 
-## 📄 License
+## License
 
 MIT License (or your chosen license)
 
 ---
 
-## 🤝 Contributions
+## Contributions
 
 Contributions are welcome! Please open issues or submit pull requests.
 
 ---
 
-## 👨‍💻 Built by
+## 👨Built by
 
-Fraemi Vision — [fraemivision.com](https://fraemivision.com)
+Fraemi Vision — [fraemivision.in](https://fraemivision.in)
