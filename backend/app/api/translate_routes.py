@@ -42,7 +42,8 @@ def translate_text():
 
         # 3. CALL THE GEMINI API
         # We initialize the generative model
-        model = genai.GenerativeModel('gemini-pro')
+        # NEW, CORRECT LINE:
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         # We send the prompt and get the response
         response = model.generate_content(prompt)
 

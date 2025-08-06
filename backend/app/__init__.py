@@ -38,7 +38,9 @@ def create_app():
     # --- Register Blueprints ---
     from .api.auth_routes import auth_bp
     from .api.project_routes import project_bp
+    from .api.translate_routes import translate_bp
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(project_bp, url_prefix='/api')
+    app.register_blueprint(translate_bp, url_prefix='/api')
 
     return app
