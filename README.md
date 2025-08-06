@@ -72,6 +72,7 @@ Create a `.flaskenv` file in the project root and add:
 
 ```
 FLASK_APP=backend/run.py
+GOOGLE_API_KEY= {API_KEY_PLACEHOLDER}
 ```
 
 ### 4. Initialize the Database
