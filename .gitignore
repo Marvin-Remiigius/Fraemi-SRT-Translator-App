@@ -1,1 +1,32 @@
+# Python
+venv/
+backend/venv/
+__pycache__/
+*.pyc
+
+# macOS
 .DS_Store
+
+
+# Environment
+# Ignore the virtual environment folder
+backend/venv/
+.venv/
+instance/
+
+# Ignore environment variable files
+.env
+.flaskenv
+
+# Database
+# Ignore the SQLite database file
+database.db
+
+# Python
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# VS Code
+# Ignore editor-specific settings
+.vscode/
