@@ -1,19 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Use Link for navigation
+import { Link } from 'react-router-dom'; 
 
 const SignIn = () => {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-neutral-900 rounded-2xl p-8 shadow-lg">
         
-        {/* Heading */}
         <h2 className="text-3xl font-bold text-center text-white mb-8 tracking-tighter">
           Welcome Back
         </h2>
 
-        {/* Form */}
         <form className="space-y-6">
-          {/* Email Input */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
               Email Address
@@ -27,7 +24,6 @@ const SignIn = () => {
             />
           </div>
 
-          {/* Password Input */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <label htmlFor="password" className="block text-sm font-medium text-neutral-300">
@@ -46,7 +42,6 @@ const SignIn = () => {
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-yellow-400 text-black text-base font-semibold py-3 px-4 rounded-full hover:bg-yellow-300 transition-colors mt-4"
@@ -55,7 +50,6 @@ const SignIn = () => {
           </button>
         </form>
 
-        {/* Link to Sign Up Page */}
         <p className="text-sm text-center text-neutral-400 mt-8">
           Don't have an account?{' '}
           <Link to="/signup" className="font-medium text-yellow-400 hover:text-yellow-300 transition-colors">

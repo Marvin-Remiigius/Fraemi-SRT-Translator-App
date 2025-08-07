@@ -1,13 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom'; // Make sure Link is imported
+import { Link } from 'react-router-dom'; 
 
 const SignUp = () => {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      {/* 1. Add 'relative' to position the back button inside this container */}
       <div className="relative w-full max-w-md bg-neutral-900 rounded-2xl p-8 shadow-lg">
         
-        {/* 2. Add the Link component that points back to the home page ("/") */}
         <Link 
           to="/" 
           className="absolute top-6 left-6 text-neutral-400 hover:text-white transition-colors"
@@ -18,14 +16,11 @@ const SignUp = () => {
           </svg>
         </Link>
         
-        {/* Heading */}
         <h2 className="text-3xl font-bold text-center text-white mb-8 tracking-tighter">
           Create Your Account
         </h2>
 
-        {/* Form */}
         <form className="space-y-6">
-          {/* Full Name Input */}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-neutral-300 mb-2">
               Full Name
@@ -39,7 +34,6 @@ const SignUp = () => {
             />
           </div>
 
-          {/* Email Input */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
               Email Address
@@ -53,7 +47,6 @@ const SignUp = () => {
             />
           </div>
 
-          {/* Password Input */}
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-neutral-300 mb-2">
               Password
@@ -67,7 +60,6 @@ const SignUp = () => {
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             className="w-full bg-yellow-400 text-black text-base font-semibold py-3 px-4 rounded-full hover:bg-yellow-300 transition-colors mt-4"
@@ -76,7 +68,6 @@ const SignUp = () => {
           </button>
         </form>
 
-        {/* Link to Sign In Page */}
         <p className="text-sm text-center text-neutral-400 mt-8">
           Already have an account?{' '}
           <Link to="/signin" className="font-medium text-yellow-400 hover:text-yellow-300 transition-colors">
