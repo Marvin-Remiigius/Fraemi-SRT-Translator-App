@@ -1,9 +1,22 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; // Make sure Link is imported
 
 const SignUp = () => {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-neutral-900 rounded-2xl p-8 shadow-lg">
+      {/* 1. Add 'relative' to position the back button inside this container */}
+      <div className="relative w-full max-w-md bg-neutral-900 rounded-2xl p-8 shadow-lg">
+        
+        {/* 2. Add the Link component that points back to the home page ("/") */}
+        <Link 
+          to="/" 
+          className="absolute top-6 left-6 text-neutral-400 hover:text-white transition-colors"
+          aria-label="Back to Home"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        </Link>
         
         {/* Heading */}
         <h2 className="text-3xl font-bold text-center text-white mb-8 tracking-tighter">
@@ -66,9 +79,9 @@ const SignUp = () => {
         {/* Link to Sign In Page */}
         <p className="text-sm text-center text-neutral-400 mt-8">
           Already have an account?{' '}
-          <a href="/signin" className="font-medium text-yellow-400 hover:text-yellow-300 transition-colors">
+          <Link to="/signin" className="font-medium text-yellow-400 hover:text-yellow-300 transition-colors">
             Sign In
-          </a>
+          </Link>
         </p>
       </div>
     </div>

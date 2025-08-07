@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './home';      // Make sure you have this file
-import SignUp from './assest/signup';  // And this file
-import SignIn from './assest/signin'; 
+import Home from './home';
+import SignUp from './assest/signup'; 
+import SignIn from './assest/signin';
+import ForgotPassword from './assest/forget';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
     </Router>
   );
