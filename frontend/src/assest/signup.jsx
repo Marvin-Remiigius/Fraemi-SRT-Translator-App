@@ -1,7 +1,51 @@
-import React from 'react';
-import { Link } from 'react-router-dom'; 
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
+// 1. Import the eye icons from lucide-react
+import { Eye, EyeOff } from 'lucide-react';
 
 const SignUp = () => {
+  // --- STATE MANAGEMENT ---
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: ''
+  });
+  // 2. Add new state to track password visibility
+  const [showPassword, setShowPassword] = useState(false); 
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // --- FORM HANDLERS ---
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // ... (rest of your handleSubmit function is unchanged)
+    setLoading(true);
+    setMessage('');
+    try {
+      const res = await fetch('http://localhost:5001/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      setLoading(false);
+      if (res.ok) {
+        setMessage('Account created successfully! Redirecting to sign in...');
+        setTimeout(() => navigate('/signin'), 2000);
+      } else {
+        setMessage(data.error || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      setLoading(false);
+      setMessage('An error occurred. Please check your connection.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
       <div className="relative w-full max-w-md bg-neutral-900 rounded-2xl p-8 shadow-lg">
@@ -20,20 +64,23 @@ const SignUp = () => {
           Create Your Account
         </h2>
 
-        <form className="space-y-6">
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          {/* ... Username and Email inputs are unchanged ... */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-neutral-300 mb-2">
+            <label htmlFor="username" className="block text-sm font-medium text-neutral-300 mb-2">
               Full Name
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
+              id="username"
+              name="username"
               placeholder="Enter your full name"
+              onChange={handleChange}
+              value={formData.username}
+              required
               className="w-full p-3 bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow"
             />
           </div>
-
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
               Email Address
@@ -43,30 +90,53 @@ const SignUp = () => {
               id="email"
               name="email"
               placeholder="you@example.com"
+              onChange={handleChange}
+              value={formData.email}
+              required
               className="w-full p-3 bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow"
             />
           </div>
 
+          {/* 3. This is the updated password section */}
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-neutral-300 mb-2">
               Password
             </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              placeholder="••••••••"
-              className="w-full p-3 bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'} // Dynamically change type
+                id="password"
+                name="password"
+                placeholder="••••••••"
+                onChange={handleChange}
+                value={formData.password}
+                required
+                className="w-full p-3 bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow pr-12"
+              />
+              <button 
+                type="button" // Important to prevent form submission
+                onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                className="absolute inset-y-0 right-0 flex items-center px-4 text-neutral-400 hover:text-white"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
           </div>
-
+          
           <button
             type="submit"
-            className="w-full bg-yellow-400 text-black text-base font-semibold py-3 px-4 rounded-full hover:bg-yellow-300 transition-colors mt-4"
+            disabled={loading}
+            className="w-full bg-yellow-400 text-black text-base font-semibold py-3 px-4 rounded-full hover:bg-yellow-300 transition-colors mt-4 disabled:bg-neutral-500 disabled:cursor-not-allowed"
           >
-            Sign Up
+            {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
+
+        {message && (
+          <p className="text-center text-sm text-white mt-6">
+            {message}
+          </p>
+        )}
 
         <p className="text-sm text-center text-neutral-400 mt-8">
           Already have an account?{' '}
