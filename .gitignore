@@ -12,6 +12,7 @@ __pycache__/
 # Ignore the virtual environment folder
 backend/venv/
 .venv/
+instance/
 
 # Ignore environment variable files
 .env
