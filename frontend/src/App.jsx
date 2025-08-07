@@ -1,14 +1,21 @@
-import { useState } from 'react'
-import './style.css'
+// src/App.js
+
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './home';      // Make sure you have this file
+import SignUp from './assest/signup';  // And this file
+import SignIn from './assest/signin'; 
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <h1 className="bg-amber-100">Vite + React</h1>
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signin" element={<SignIn />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
