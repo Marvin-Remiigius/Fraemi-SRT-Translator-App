@@ -5,6 +5,7 @@ import Home from './home';
 import SignUp from './assest/signup'; 
 import SignIn from './assest/signin';
 import ForgotPassword from './assest/forget';
+import DashboardPage from './pages/Dashboardpage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
       </Routes>
     </Router>
   );

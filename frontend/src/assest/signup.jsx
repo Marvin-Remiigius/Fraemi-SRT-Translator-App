@@ -1,29 +1,24 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom'; 
-// 1. Import the eye icons from lucide-react
 import { Eye, EyeOff } from 'lucide-react';
 
 const SignUp = () => {
-  // --- STATE MANAGEMENT ---
   const [formData, setFormData] = useState({
     username: '',
     email: '',
     password: ''
   });
-  // 2. Add new state to track password visibility
   const [showPassword, setShowPassword] = useState(false); 
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // --- FORM HANDLERS ---
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // ... (rest of your handleSubmit function is unchanged)
     setLoading(true);
     setMessage('');
     try {
@@ -35,8 +30,8 @@ const SignUp = () => {
       const data = await res.json();
       setLoading(false);
       if (res.ok) {
-        setMessage('Account created successfully! Redirecting to sign in...');
-        setTimeout(() => navigate('/signin'), 2000);
+        setMessage('Account created successfully! Redirecting...');
+        setTimeout(() => navigate('/dashboard'), 2000);
       } else {
         setMessage(data.error || 'Registration failed. Please try again.');
       }
@@ -65,7 +60,6 @@ const SignUp = () => {
         </h2>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
-          {/* ... Username and Email inputs are unchanged ... */}
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-neutral-300 mb-2">
               Full Name
@@ -97,14 +91,13 @@ const SignUp = () => {
             />
           </div>
 
-          {/* 3. This is the updated password section */}
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-neutral-300 mb-2">
               Password
             </label>
             <div className="relative">
               <input
-                type={showPassword ? 'text' : 'password'} // Dynamically change type
+                type={showPassword ? 'text' : 'password'} 
                 id="password"
                 name="password"
                 placeholder="••••••••"
@@ -114,8 +107,8 @@ const SignUp = () => {
                 className="w-full p-3 bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow pr-12"
               />
               <button 
-                type="button" // Important to prevent form submission
-                onClick={() => setShowPassword(!showPassword)} // Toggle visibility
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
                 className="absolute inset-y-0 right-0 flex items-center px-4 text-neutral-400 hover:text-white"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
