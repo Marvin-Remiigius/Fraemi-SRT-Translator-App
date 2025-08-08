@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import AdvancedEditor from './AdvancedEditor.jsx';
-import { X } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 const StatusIndicator = ({ status }) => {
   const baseClasses = "text-xs font-bold uppercase tracking-wider";
@@ -96,7 +96,6 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
         <h1 className="text-4xl font-extrabold tracking-tight">{project.name}</h1>
       </div>
 
-      {/* THIS IS THE CORRECTED SECTION */}
       {stage === 'upload' && (
         <div className="text-center bg-gray-800 p-12 rounded-xl border-2 border-dashed border-gray-600">
           <h2 className="text-2xl font-bold mb-4">Start Your Project</h2>
@@ -128,7 +127,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
                       className="text-gray-500 hover:text-red-400 transition-colors"
                       aria-label={`Remove ${file.name}`}
                     >
-                      <X size={16} />
+                      <Trash2 size={16} />
                     </button>
                     <span className="font-mono text-gray-300">{file.name}</span>
                   </div>
