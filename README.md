@@ -123,7 +123,7 @@ The API will now be available at:
 ### Backend
 - [x] User authentication & session management
 - [x] Project creation & retrieval
-- [ ] SRT file upload & management
+- [x] SRT file upload & management
 - [ ] Integration with OpenAI API for translations
 
 ### Frontend (Planned)
