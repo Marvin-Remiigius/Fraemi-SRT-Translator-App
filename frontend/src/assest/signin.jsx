@@ -42,7 +42,7 @@ const SignIn = () => {
 
       if (res.ok) {
         // If login is successful, redirect to the main dashboard.
-        navigate('/'); // Redirect to the homepage/dashboard
+        navigate('/dashboard'); // Redirect to the homepage/dashboard
       } else {
         // If your backend sends an error (e.g., "Invalid credentials"), display it.
         setMessage(data.error || 'Sign in failed.');
