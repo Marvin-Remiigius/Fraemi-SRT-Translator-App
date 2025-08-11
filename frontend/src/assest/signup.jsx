@@ -31,7 +31,7 @@ const SignUp = () => {
       setLoading(false);
       if (res.ok) {
         setMessage('Account created successfully! Redirecting...');
-        setTimeout(() => navigate('/dashboard'), 2000);
+        setTimeout(() => navigate('/'), 2000);
       } else {
         setMessage(data.error || 'Registration failed. Please try again.');
       }
