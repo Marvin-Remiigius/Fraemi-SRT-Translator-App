@@ -47,7 +47,6 @@ const DashboardPage = () => {
 
   if (activeProject && projects.some(p => p.id === activeProject.id)) {
     return (
-      // Add pt-24 to push content down from the fixed header
       <div className="pt-24">
         <main className="container mx-auto p-6 lg:p-8">
           <ProjectWorkspace
@@ -61,7 +60,6 @@ const DashboardPage = () => {
   }
 
   return (
-    // Add pt-24 to push content down from the fixed header
     <div className="pt-24">
       <main className="container mx-auto p-6 lg:p-8">
         <ProjectsDashboard

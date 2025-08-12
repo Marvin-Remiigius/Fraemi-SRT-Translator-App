@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 const DeleteConfirmationModal = ({ project, onClose, onConfirm }) => {
   const [confirmationInput, setConfirmationInput] = useState('');
 
-  // Reset input when the modal opens for a new project
   useEffect(() => {
     if (project) {
       setConfirmationInput('');

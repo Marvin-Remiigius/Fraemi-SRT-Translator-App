@@ -2,17 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { parseSRT, calculateCPS, getCPSColor } from '../utils/srtUtils.jsx';
 
 const AdvancedEditor = ({ files, showToast }) => {
-  // State to track which file is currently being edited
   const [activeFileIndex, setActiveFileIndex] = useState(0);
-  // State to hold the data for all files
   const [filesData, setFilesData] = useState([]);
 
   useEffect(() => {
-    // When files are passed as props, parse them and set up the initial state
     const parsedData = files.map(file => ({
       ...file,
       originalParsed: parseSRT(file.content),
-      translatedParsed: parseSRT(file.translatedContent) // Assuming this structure
+      translatedParsed: parseSRT(file.translatedContent) 
     }));
     setFilesData(parsedData);
   }, [files]);
@@ -32,7 +29,6 @@ const AdvancedEditor = ({ files, showToast }) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        {/* File Selector Dropdown */}
         <select 
           value={activeFileIndex}
           onChange={(e) => setActiveFileIndex(Number(e.target.value))}
@@ -50,18 +46,16 @@ const AdvancedEditor = ({ files, showToast }) => {
       </div>
 
       <div className="bg-gray-800 rounded-xl p-2 font-mono text-sm">
-        {/* Editor Header */}
         <div className="grid grid-cols-12 gap-4 text-gray-400 font-bold p-4 border-b border-gray-700">
           <div className="col-span-1 text-center">#</div>
           <div className="col-span-3">Timeline & CPS</div>
           <div className="col-span-4">Original Text</div>
           <div className="col-span-4 text-yellow-400">Translated Text (Editable)</div>
         </div>
-        {/* Editor Rows */}
         <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
           {activeFileData.originalParsed.map((original, index) => {
             const translated = activeFileData.translatedParsed[index];
-            if (!translated) return null; // Handle cases where translation might be missing a line
+            if (!translated) return null; 
             const cps = calculateCPS(original.timeline, translated.text);
             const cpsColor = getCPSColor(cps);
 

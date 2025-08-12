@@ -7,7 +7,7 @@ const Layout = () => {
     <>
       <AppHeader />
       <main>
-        <Outlet /> {/* Child routes will render here */}
+        <Outlet /> 
       </main>
     </>
   );

@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // <-- IMPORT THE CONTEXT
+import { useAuth } from '../context/AuthContext'; 
 
 const AppHeader = () => {
   const navigate = useNavigate();
-  const { currentUser, logout } = useAuth(); // <-- GET THE CURRENT USER AND LOGOUT FUNCTION
+  const { currentUser, logout } = useAuth(); 
 
   const handleSignOut = () => {
     logout();

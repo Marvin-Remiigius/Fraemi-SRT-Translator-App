@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext'; // <-- THIS PATH IS NOW CORRECT
+import { useAuth } from '../context/AuthContext'; 
 
 const SignIn = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); // <-- GET THE LOGIN FUNCTION FROM CONTEXT
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -32,7 +32,7 @@ const SignIn = () => {
       setLoading(false);
 
       if (res.ok) {
-        login(data); // <-- SAVE THE USER DATA TO OUR GLOBAL STATE
+        login(data); 
         navigate('/dashboard');
       } else {
         setMessage(data.error || 'Sign in failed.');

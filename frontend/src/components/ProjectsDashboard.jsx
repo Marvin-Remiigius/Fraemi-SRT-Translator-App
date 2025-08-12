@@ -1,7 +1,6 @@
 
 import React from 'react';
 
-// Helper component for the status badge
 const StatusBadge = ({ status }) => {
   const colorClasses = {
     'Completed': 'bg-green-500/20 text-green-400',
@@ -15,7 +14,6 @@ const StatusBadge = ({ status }) => {
   );
 };
 
-// The ProjectCard logic is now inside this file
 const ProjectCard = ({ project, onProjectClick, onDeleteClick }) => {
   return (
     <div 
@@ -29,7 +27,7 @@ const ProjectCard = ({ project, onProjectClick, onDeleteClick }) => {
         <StatusBadge status={project.status} />
         <button 
           onClick={(e) => {
-            e.stopPropagation(); // Prevent the card's click event from firing
+            e.stopPropagation(); 
             onDeleteClick();
           }}
           className="text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
