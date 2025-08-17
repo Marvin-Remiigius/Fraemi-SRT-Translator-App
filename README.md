@@ -124,7 +124,7 @@ The API will now be available at:
 - [x] User authentication & session management
 - [x] Project creation & retrieval
 - [x] SRT file upload & management
-- [ ] Integration with OpenAI API for translations
+- [ ] Integration with Gemini API for translations
 
 ### Frontend (Planned)
 - [ ] User registration & login UI
