@@ -1,5 +1,5 @@
+
 import React, { useState } from 'react';
-import AppHeader from '../components/AppHeader.jsx';
 import ProjectsDashboard from '../components/ProjectsDashboard.jsx';
 import ProjectWorkspace from '../components/ProjectWorkspace.jsx';
 import CreateProjectModal from '../components/CreateProjectModal.jsx';
@@ -47,8 +47,8 @@ const DashboardPage = () => {
 
   if (activeProject && projects.some(p => p.id === activeProject.id)) {
     return (
-      <>
-        <AppHeader />
+      // Add pt-24 to push content down from the fixed header
+      <div className="pt-24">
         <main className="container mx-auto p-6 lg:p-8">
           <ProjectWorkspace
             project={activeProject}
@@ -56,13 +56,13 @@ const DashboardPage = () => {
             showToast={showToast}
           />
         </main>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
-      <AppHeader />
+    // Add pt-24 to push content down from the fixed header
+    <div className="pt-24">
       <main className="container mx-auto p-6 lg:p-8">
         <ProjectsDashboard
           projects={projects}
@@ -82,7 +82,7 @@ const DashboardPage = () => {
         onConfirm={handleDeleteProject}
       />
       <Toast message={toast.message} show={toast.show} />
-    </>
+    </div>
   );
 };
 
