@@ -26,6 +26,7 @@ def create_project():
         project_name=data.get('project_name'),
         user_id=current_user.id
     )
+    #Creating a new database session
     db.session.add(new_project)
     db.session.commit()
     return jsonify({'message': 'Project created successfully', 'project_id': new_project.id}), 201
