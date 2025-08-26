@@ -138,7 +138,7 @@ The API will now be available at:
 
 ## License
 
-MIT License (or your chosen license)
+MIT License Registered
 
 ---
 
