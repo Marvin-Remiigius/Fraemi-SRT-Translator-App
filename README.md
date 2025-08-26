@@ -127,7 +127,7 @@ The API will now be available at:
 - [x] Integration with OpenAI API for translations
 
 ### Frontend (Planned)
-- [ ] User registration & login UI
+- [x] User registration & login UI
 - [ ] Project dashboard & file management UI
 
 ### Full Stack
