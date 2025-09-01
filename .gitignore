@@ -18,6 +18,7 @@ instance/
 # Ignore environment variable files
 .env
 .flaskenv
+.flaskenv
 
 # Database
 # Ignore the SQLite database file
