@@ -133,6 +133,7 @@ The API will now be available at:
 ### Full Stack
 - [ ] Team collaboration features
 - [ ] Subscription plans for B2B clients
+- [ ] Dynamic Login
 
 ---
 
