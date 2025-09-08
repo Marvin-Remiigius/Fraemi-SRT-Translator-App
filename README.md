@@ -43,6 +43,26 @@ The Fraemi SRT Translator is architected as a modern web application with a dist
 
 ---
 
+## Frontend Setup & Installation
+
+### 1. Prerequisites
+- Node.js (v16 or higher is recommended)
+- `npm` (Node Package Manager), which comes with Node.js
+
+---
+
+### 2. Installation & Running the App
+
+```bash
+# Navigate to the frontend directory
+cd frontend
+
+# Install all the required dependencies
+npm install
+
+# Start the local development server
+npm run dev
+
 ## Backend Setup & Installation
 
 ### 1. Prerequisites
