@@ -129,6 +129,7 @@ The API will now be available at:
 ### Frontend (Planned)
 - [x] User registration & login UI
 - [ ] Project dashboard & file management UI
+- [ ] Character Count Finder
 
 ### Full Stack
 - [ ] Team collaboration features
