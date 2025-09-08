@@ -28,6 +28,7 @@ database.db
 # Ignore Python cache files
 __pycache__/
 *.pyc
+__pycache__/
 
 # VS Code
 # Ignore editor-specific settings
