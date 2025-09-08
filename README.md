@@ -130,6 +130,7 @@ The API will now be available at:
 - [x] User registration & login UI
 - [ ] Project dashboard & file management UI
 - [ ] Character Count Finder
+- [ ] Sign up
 
 ### Full Stack
 - [ ] Team collaboration features
@@ -154,3 +155,4 @@ Contributions are welcome! Please open issues or submit pull requests.
 
 Students from Panimalar Engineering College IT Department 
 Fraemi Vision — [fraemivision.in](https://fraemivision.in)
+
