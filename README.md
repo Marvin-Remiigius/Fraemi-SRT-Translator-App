@@ -130,7 +130,8 @@ The API will now be available at:
 - [x] User registration & login UI
 - [ ] Project dashboard & file management UI
 - [ ] Character Count Finder
-- [ ] Sign up
+- [ ] Sign Up
+- [ ] Adding File
 
 ### Full Stack
 - [ ] Team collaboration features
