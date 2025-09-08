@@ -75,7 +75,7 @@ Create a .env file in the frontend directory to connect with the backend API.
 # Example for a Vite-based project (e.g., React, Vue)
 VITE_API_BASE_URL=[http://127.0.0.1:5000](http://127.0.0.1:5000)
 
-### 2. Installation & Setup
+### Backend Installation & Setup
 
 ```bash
 # Clone the repository
