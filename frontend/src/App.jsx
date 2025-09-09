@@ -7,7 +7,8 @@ import SignUp from './assest/signup';
 import SignIn from './assest/signin';
 import ForgotPassword from './assest/forget';
 import DashboardPage from './pages/Dashboardpage';
-import Layout from './components/Layout'; // <-- IMPORT THE NEW LAYOUT
+import Layout from './components/Layout';
+import ProtectedRoute from './components/ProtectedRoute'; // <-- IMPORT THE NEW COMPONENT
 
 function App() {
   return (
@@ -17,8 +18,13 @@ function App() {
           {/* Routes WITH the main header */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            {/* Add other pages that need the header here, e.g., /about */}
+            
+            {/* This is now a protected route */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="dashboard" element={<DashboardPage />} />
+              {/* You can add more protected pages here later */}
+            </Route>
+
           </Route>
 
           {/* Routes WITHOUT the main header */}
