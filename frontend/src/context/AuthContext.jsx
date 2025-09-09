@@ -6,58 +6,61 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const [loading, setLoading] = useState(true);
 
-  // This effect runs once when the app loads to check for an existing session
+  // This effect now runs once to check localStorage for a persistent session.
   useEffect(() => {
-    const checkLoggedInStatus = async () => {
-      try {
-        const res = await fetch('http://localhost:5001/auth/status', {
-          credentials: 'include', // <-- CRITICAL: Send cookies
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.logged_in) {
-            setCurrentUser(data);
-          }
-        }
-      } catch (error) {
-        console.error('Could not fetch login status:', error);
-      } finally {
-        setLoading(false); // Stop loading once the check is complete
+    try {
+      // 1. Check browser's localStorage for user data.
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        // If found, parse it and set it as the current user.
+        setCurrentUser(JSON.parse(storedUser));
       }
-    };
-    checkLoggedInStatus();
-  }, []); // Empty array ensures this runs only once on mount
+    } catch (error) {
+      console.error("Failed to parse user from localStorage", error);
+    } finally {
+      // 2. We are done checking, so stop the loading state.
+      setLoading(false);
+    }
+  }, []); // Empty array ensures this runs only once on app load
 
   const login = (userData) => {
+    // 1. Set the user in the React state.
     setCurrentUser(userData);
+    // 2. Save the user data to localStorage as a string.
+    localStorage.setItem('currentUser', JSON.stringify(userData));
   };
 
   const logout = async () => {
     try {
-      // Also call the backend logout endpoint
+      // Still call the backend to invalidate the server session.
       await fetch('http://localhost:5001/auth/logout', { 
         method: 'POST',
         credentials: 'include' 
       });
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('Logout API call failed:', error);
     }
+    // 1. Clear the user from the React state.
     setCurrentUser(null);
+    // 2. Remove the user data from localStorage.
+    localStorage.removeItem('currentUser');
   };
 
   const value = {
     currentUser,
     login,
     logout,
-    loading, // Expose loading state
+    loading,
   };
 
-  // Don't render the app until we've checked for a user
+  // The ProtectedRoute will now work correctly because it waits for this
+  // initial localStorage check to complete.
   return (
     <AuthContext.Provider value={value}>
       {!loading && children}
     </AuthContext.Provider>
   );
 };
+
