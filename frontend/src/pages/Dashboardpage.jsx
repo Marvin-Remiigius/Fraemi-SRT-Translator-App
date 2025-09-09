@@ -1,8 +1,3 @@
-// =====================================================================
-// STEP 1: UPDATE your Dashboard page to fetch and create projects.
-// FILE: frontend/src/pages/Dashboardpage.jsx
-// =====================================================================
-
 import React, { useState, useEffect } from 'react';
 import ProjectsDashboard from '../components/ProjectsDashboard.jsx';
 import ProjectWorkspace from '../components/ProjectWorkspace.jsx';
@@ -18,7 +13,6 @@ const DashboardPage = () => {
   const [toast, setToast] = useState({ show: false, message: '' });
 
   // --- FETCH PROJECTS FROM BACKEND ---
-  // This useEffect hook runs once when the component loads.
   useEffect(() => {
     const fetchProjects = async () => {
       try {
@@ -100,16 +94,18 @@ const DashboardPage = () => {
   // This logic decides whether to show the dashboard or the workspace
   if (activeProject && projects.some(p => p.id === activeProject.id)) {
     return (
+      <div className="pt-28"> {/* Added padding-top */}
         <ProjectWorkspace
             project={activeProject}
             onBack={() => setActiveProject(null)}
             showToast={showToast}
         />
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="pt-28"> {/* Added padding-top */}
       <ProjectsDashboard
         projects={projects}
         onProjectClick={setActiveProject}
@@ -127,7 +123,7 @@ const DashboardPage = () => {
         onConfirm={handleDeleteProject}
       />
       <Toast message={toast.message} show={toast.show} />
-    </>
+    </div>
   );
 };
 
