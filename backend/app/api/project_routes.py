@@ -1,18 +1,19 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
-from ..models import Project, SrtFile # <-- Import the new SrtFile model
+from ..models import Project, SrtFile
 from .. import db
+import datetime # <-- Make sure to import this
 
 project_bp = Blueprint('projects', __name__)
 
-# --- GET and CREATE Projects (No changes) ---
+# --- GET and CREATE Projects (FIXED) ---
 @project_bp.route('/projects', methods=['GET'])
 @login_required
 def get_projects():
-    # ... (existing code) ...
     projects = Project.query.filter_by(user_id=current_user.id).order_by(Project.created_at.desc()).all()
     projects_list = [
-        {'id': p.id, 'project_name': p.project_name, 'created_at': p.project_name.isoformat()}
+        # BUG FIX: Changed p.project_name to p.created_at
+        {'id': p.id, 'project_name': p.project_name, 'created_at': p.created_at.isoformat()}
         for p in projects
     ]
     return jsonify(projects_list)
@@ -20,30 +21,33 @@ def get_projects():
 @project_bp.route('/projects', methods=['POST'])
 @login_required
 def create_project():
-    # ... (existing code) ...
     data = request.get_json()
+    # Add validation to ensure project_name is provided
+    if not data or not data.get('project_name'):
+        return jsonify({'error': 'Project name is required'}), 400
+        
     new_project = Project(
         project_name=data.get('project_name'),
-        user_id=current_user.id
+        user_id=current_user.id,
+        created_at=datetime.datetime.utcnow() # BUG FIX: Explicitly set creation time
     )
-    #Creating a new database session
     db.session.add(new_project)
     db.session.commit()
-    return jsonify({'message': 'Project created successfully', 'project_id': new_project.id}), 201
+    return jsonify({
+        'message': 'Project created successfully', 
+        'project_id': new_project.id
+    }), 201
 
 
-# --- File Upload Route (NEW) ---
+# --- File Upload Route (No changes needed here) ---
 @project_bp.route('/projects/<int:project_id>/upload', methods=['POST'])
 @login_required
 def upload_srt_file(project_id):
     """
     Handles uploading an SRT file to a specific project.
     """
-    # 1. Find the project and ensure it belongs to the current user.
-    #    first_or_404() is a handy shortcut that automatically returns a 404 error if not found.
     project = Project.query.filter_by(id=project_id, user_id=current_user.id).first_or_404()
 
-    # 2. Check if the file is present in the request.
     if 'file' not in request.files:
         return jsonify({'error': 'No file part in the request'}), 400
     
@@ -52,19 +56,15 @@ def upload_srt_file(project_id):
     if file.filename == '':
         return jsonify({'error': 'No selected file'}), 400
 
-    # 3. Validate the file type.
     if file and file.filename.endswith('.srt'):
-        # Read the content of the file as a string.
         original_content = file.read().decode('utf-8')
         
-        # 4. Create a new SrtFile record in the database.
         new_srt_file = SrtFile(
             filename=file.filename,
             original_content=original_content,
-            project_id=project.id  # Link it to the parent project
+            project_id=project.id
         )
         
-        # 5. Add to the session and commit.
         db.session.add(new_srt_file)
         db.session.commit()
 
@@ -74,3 +74,4 @@ def upload_srt_file(project_id):
         }), 200
     else:
         return jsonify({'error': 'Invalid file type, please upload an .srt file'}), 400
+
