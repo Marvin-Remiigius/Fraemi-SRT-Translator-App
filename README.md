@@ -124,15 +124,19 @@ The API will now be available at:
 - [x] User authentication & session management
 - [x] Project creation & retrieval
 - [x] SRT file upload & management
-- [ ] Integration with Gemini API for translations
+- [x] Integration with OpenAI API for translations
 
 ### Frontend (Planned)
-- [ ] User registration & login UI
+- [x] User registration & login UI
 - [ ] Project dashboard & file management UI
+- [ ] Character Count Finder
+- [ ] Sign Up
+- [ ] Adding File
 
 ### Full Stack
 - [ ] Team collaboration features
 - [ ] Subscription plans for B2B clients
+- [ ] Dynamic Login
 
 ---
 
