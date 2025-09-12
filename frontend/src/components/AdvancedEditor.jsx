@@ -6,6 +6,8 @@ const AdvancedEditor = ({ files, showToast }) => {
   const [activeFileIndex, setActiveFileIndex] = useState(0);
   // State to hold the data for all files
   const [filesData, setFilesData] = useState([]);
+  // State for save loading
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     // When files are passed as props, parse them and set up the initial state
@@ -21,6 +23,52 @@ const AdvancedEditor = ({ files, showToast }) => {
     const updatedFilesData = [...filesData];
     updatedFilesData[activeFileIndex].translatedParsed[lineIndex].text = newText;
     setFilesData(updatedFilesData);
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    const activeFile = filesData[activeFileIndex];
+    // Reconstruct the translated SRT content from parsed data
+    const translatedContent = activeFile.translatedParsed.map(line =>
+      `${line.number}\n${line.timeline}\n${line.text}\n`
+    ).join('\n');
+
+    try {
+      const response = await fetch(`/api/srt-files/${activeFile.id}/save`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ translated_content: translatedContent }),
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save changes');
+      }
+      showToast('✅ Changes saved successfully!');
+    } catch (error) {
+      showToast(`❌ Error saving changes: ${error.message}`);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      const response = await fetch(`/api/srt-files/${filesData[activeFileIndex].id}/download`);
+      if (!response.ok) {
+        throw new Error('Failed to download file');
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filesData[activeFileIndex].name;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      showToast('✅ File downloaded successfully!');
+    } catch (error) {
+      showToast(`❌ Error downloading file: ${error.message}`);
+    }
   };
   
   const activeFileData = filesData[activeFileIndex];
@@ -44,8 +92,10 @@ const AdvancedEditor = ({ files, showToast }) => {
         </select>
         
         <div className="flex space-x-4">
-          <button onClick={() => showToast('✅ Changes saved successfully!')} className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-5 rounded-lg transition-colors">Save Changes</button>
-          <button className="bg-green-500 hover:bg-green-400 text-black font-bold py-2 px-5 rounded-lg transition-colors">Download .srt</button>
+          <button onClick={handleSave} disabled={isSaving} className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-5 rounded-lg transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </button>
+          <button onClick={handleDownload} className="bg-green-500 hover:bg-green-400 text-black font-bold py-2 px-5 rounded-lg transition-colors">Download .srt</button>
         </div>
       </div>
 

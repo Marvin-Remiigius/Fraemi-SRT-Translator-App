@@ -1,5 +1,18 @@
-- [ ] Update vite.config.js: Remove rewrite from proxy
-- [ ] Update backend/app/__init__.py: Change auth_bp url_prefix to '/api/auth'
-- [ ] Update backend/app/api/auth_routes.py: Change '/session' to '/status'
-- [ ] Update frontend/src/assest/signin.jsx: Change fetch URL to '/api/auth/login'
-- [ ] Update frontend/src/context/AuthContext.jsx: Change '/api/session' to '/api/auth/status'
+# SRT Translator App Integration Tasks
+
+## Backend Updates
+- [x] Fix create_project in project_routes.py to return full project object (id, project_name, created_at)
+- [x] Add GET /api/projects/<id>/files to fetch SRT files for a project
+- [x] Update POST /translate in translate_routes.py to save translated_content to SrtFile (add file_id to request)
+- [x] Add PUT /api/srt-files/<id>/save to update translated_content
+- [x] Add GET /api/srt-files/<id>/download to return translated SRT as file
+
+## Frontend Updates
+- [ ] Update ProjectWorkspace.jsx to use real upload API (/upload) and translate API (with file_id)
+- [ ] Update AdvancedEditor.jsx to implement real save (PUT /save) and download (GET /download)
+- [ ] Update Dashboardpage.jsx to handle full project object from create_project response
+
+## Testing
+- [ ] Test backend APIs
+- [ ] Run frontend and verify integrations
+- [ ] Handle errors and edge cases

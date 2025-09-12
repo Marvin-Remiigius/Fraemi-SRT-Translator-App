@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import AdvancedEditor from './AdvancedEditor.jsx';
 import { Trash2 } from 'lucide-react';
 
@@ -25,16 +25,47 @@ const StatusIndicator = ({ status }) => {
 
 
 const ProjectWorkspace = ({ project, onBack, showToast }) => {
-  const [stage, setStage] = useState(() => {
-    if (project.hasTranslated) return 'editor';
-    if (project.hasOriginal) return 'translate';
-    return 'upload';
-  });
+  const [stage, setStage] = useState('upload');
 
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [translatedFiles, setTranslatedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const fetchExistingFiles = async () => {
+      try {
+        const res = await fetch(`/api/projects/${project.id}/files`);
+        if (res.ok) {
+          const files = await res.json();
+          if (files.length > 0) {
+            const translated = files.filter(f => f.translated_content);
+            if (translated.length > 0) {
+              setTranslatedFiles(translated.map(f => ({
+                id: f.id,
+                name: f.filename,
+                content: f.original_content,
+                translatedContent: f.translated_content,
+              })));
+              setStage('editor');
+            } else {
+              setUploadedFiles(files.map(f => ({
+                id: f.id,
+                name: f.filename,
+                content: f.original_content,
+                status: 'success',
+              })));
+              setStage('translate');
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching existing files:', error);
+      }
+    };
+
+    fetchExistingFiles();
+  }, [project.id]);
 
   const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
@@ -61,16 +92,63 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
   const handleTranslateAll = async () => {
     setIsLoading(true);
     setUploadedFiles(prevFiles => prevFiles.map(f => ({ ...f, status: 'uploading' })));
-    await delay(1500);
+
+    // Upload files to backend
+    const uploadedFileIds = [];
+    for (const file of uploadedFiles) {
+      const formData = new FormData();
+      formData.append('file', new Blob([file.content], { type: 'text/plain' }), file.name);
+      try {
+        const uploadRes = await fetch(`/api/projects/${project.id}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        if (!uploadRes.ok) {
+          throw new Error(`Failed to upload file ${file.name}`);
+        }
+        const uploadData = await uploadRes.json();
+        uploadedFileIds.push({ id: uploadData.file_id, name: file.name, content: file.content });
+      } catch (error) {
+        showToast(`Error uploading ${file.name}: ${error.message}`);
+        setIsLoading(false);
+        return;
+      }
+    }
+
     setUploadedFiles(prevFiles => prevFiles.map(f => ({ ...f, status: 'translating' })));
-    await delay(2000);
-    setUploadedFiles(prevFiles => prevFiles.map(f => ({ ...f, status: 'success' })));
-    const newTranslatedFiles = uploadedFiles.map(file => ({
-      ...file,
-      translatedContent: `[Translated Content for ${file.name}]`
-    }));
-    setTranslatedFiles(newTranslatedFiles);
-    await delay(1000);
+
+    // Translate files using backend API
+    const translatedFilesResults = [];
+    for (const file of uploadedFileIds) {
+      try {
+        const translateRes = await fetch('/api/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            srt_content: file.content,
+            target_language: 'en', // You may want to make this dynamic
+            file_id: file.id,
+          }),
+        });
+        if (!translateRes.ok) {
+          throw new Error(`Failed to translate file ${file.name}`);
+        }
+        const translateData = await translateRes.json();
+        translatedFilesResults.push({
+          id: file.id,
+          name: file.name,
+          content: file.content,
+          translatedContent: translateData.translated_srt,
+          status: 'success',
+        });
+      } catch (error) {
+        showToast(`Error translating ${file.name}: ${error.message}`);
+        setIsLoading(false);
+        return;
+      }
+    }
+
+    setTranslatedFiles(translatedFilesResults);
     setIsLoading(false);
     setStage('editor');
   };
@@ -93,7 +171,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
         <button onClick={onBack} className="text-gray-400 hover:text-white mr-4">
            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" /></svg>
         </button>
-        <h1 className="text-4xl font-extrabold tracking-tight">{project.name}</h1>
+        <h1 className="text-4xl font-extrabold tracking-tight">{project.project_name}</h1>
       </div>
 
       {stage === 'upload' && (

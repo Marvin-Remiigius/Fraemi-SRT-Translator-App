@@ -2,16 +2,22 @@ from flask import Blueprint, request, jsonify
 from .. import db, bcrypt
 from ..models import User
 from flask_login import login_user, logout_user, login_required, current_user
+from sqlalchemy.exc import IntegrityError
 
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    # Check if user already exists
+    # Check if user already exists by email
     user = User.query.filter_by(email=data.get('email')).first()
     if user:
         return jsonify({'error': 'User with that email already exists'}), 409
+
+    # Check if user already exists by username
+    user = User.query.filter_by(username=data.get('username')).first()
+    if user:
+        return jsonify({'error': 'User with that username already exists'}), 409
 
     hashed_password = bcrypt.generate_password_hash(data.get('password')).decode('utf-8')
     new_user = User(
@@ -20,8 +26,12 @@ def register():
         password_hash=hashed_password
     )
     db.session.add(new_user)
-    db.session.commit()
-    return jsonify({'message': 'User registered successfully'}), 201
+    try:
+        db.session.commit()
+        return jsonify({'message': 'User registered successfully'}), 201
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({'error': 'User with that username or email already exists'}), 409
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

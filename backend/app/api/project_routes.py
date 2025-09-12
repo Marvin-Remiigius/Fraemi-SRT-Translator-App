@@ -12,7 +12,7 @@ def get_projects():
     # ... (existing code) ...
     projects = Project.query.filter_by(user_id=current_user.id).order_by(Project.created_at.desc()).all()
     projects_list = [
-        {'id': p.id, 'project_name': p.project_name, 'created_at': p.project_name.isoformat()}
+        {'id': p.id, 'project_name': p.project_name, 'created_at': p.created_at.isoformat()}
         for p in projects
     ]
     return jsonify(projects_list)
@@ -29,7 +29,7 @@ def create_project():
     #Creating a new database session
     db.session.add(new_project)
     db.session.commit()
-    return jsonify({'message': 'Project created successfully', 'project_id': new_project.id}), 201
+    return jsonify({'id': new_project.id, 'project_name': new_project.project_name, 'created_at': new_project.created_at.isoformat()}), 201
 
 
 # --- File Upload Route (NEW) ---
@@ -74,3 +74,56 @@ def upload_srt_file(project_id):
         }), 200
     else:
         return jsonify({'error': 'Invalid file type, please upload an .srt file'}), 400
+
+@project_bp.route('/projects/<int:project_id>/files', methods=['GET'])
+@login_required
+def get_srt_files(project_id):
+    project = Project.query.filter_by(id=project_id, user_id=current_user.id).first_or_404()
+    files = SrtFile.query.filter_by(project_id=project.id).all()
+    files_list = [{'id': f.id, 'filename': f.filename, 'original_content': f.original_content} for f in files]
+    return jsonify(files_list)
+
+
+# --- Save Edited SRT Content ---
+@project_bp.route('/srt-files/<int:file_id>/save', methods=['PUT'])
+@login_required
+def save_srt_file(file_id):
+    """
+    Updates the translated content of an SRT file.
+    """
+    # Find the SRT file and ensure it belongs to the current user via project
+    srt_file = SrtFile.query.join(Project).filter(
+        SrtFile.id == file_id,
+        Project.user_id == current_user.id
+    ).first_or_404()
+
+    data = request.get_json()
+    if not data or 'translated_content' not in data:
+        return jsonify({'error': 'Missing translated_content in request'}), 400
+
+    srt_file.translated_content = data['translated_content']
+    db.session.commit()
+
+    return jsonify({'message': 'SRT file saved successfully'})
+
+
+# --- Download Translated SRT File ---
+@project_bp.route('/srt-files/<int:file_id>/download', methods=['GET'])
+@login_required
+def download_srt_file(file_id):
+    """
+    Downloads the translated SRT file.
+    """
+    # Find the SRT file and ensure it belongs to the current user via project
+    srt_file = SrtFile.query.join(Project).filter(
+        SrtFile.id == file_id,
+        Project.user_id == current_user.id
+    ).first_or_404()
+
+    if not srt_file.translated_content:
+        return jsonify({'error': 'No translated content available'}), 400
+
+    from flask import Response
+    response = Response(srt_file.translated_content, mimetype='text/plain')
+    response.headers['Content-Disposition'] = f'attachment; filename={srt_file.filename}'
+    return response
