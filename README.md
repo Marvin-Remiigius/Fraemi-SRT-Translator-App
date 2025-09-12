@@ -43,13 +43,39 @@ The Fraemi SRT Translator is architected as a modern web application with a dist
 
 ---
 
+## Frontend Setup & Installation
+
+### 1. Prerequisites
+- Node.js (v16 or higher is recommended)
+- `npm` (Node Package Manager), which comes with Node.js
+
+---
+
+### 2. Installation & Running the App
+
+```bash
+# Navigate to the frontend directory
+cd frontend
+
+# Install all the required dependencies
+npm install
+
+# Start the local development server
+npm run dev
+
 ## Backend Setup & Installation
 
 ### 1. Prerequisites
 - Python 3.10 or higher
 - `pip` and `venv` for package management
 
-### 2. Installation & Setup
+3. Configure Environment Variables
+Create a .env file in the frontend directory to connect with the backend API.
+
+# Example for a Vite-based project (e.g., React, Vue)
+VITE_API_BASE_URL=[http://127.0.0.1:5000](http://127.0.0.1:5000)
+
+### Backend Installation & Setup
 
 ```bash
 # Clone the repository
@@ -142,7 +168,7 @@ The API will now be available at:
 
 ## License
 
-MIT License (or your chosen license)
+MIT License Registered
 
 ---
 
@@ -154,4 +180,6 @@ Contributions are welcome! Please open issues or submit pull requests.
 
 ## Built by
 
+Students from Panimalar Engineering College IT Department 
 Fraemi Vision — [fraemivision.in](https://fraemivision.in)
+
