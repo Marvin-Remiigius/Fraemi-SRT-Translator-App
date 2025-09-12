@@ -38,7 +38,7 @@ def logout():
     logout_user()
     return jsonify({'message': 'Logged out successfully'})
 
-@auth_bp.route('/session', methods=['GET'])
+@auth_bp.route('/status', methods=['GET'])
 @login_required
-def session():
+def status():
     return jsonify({'username': current_user.username})

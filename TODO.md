@@ -1,0 +1,5 @@
+- [ ] Update vite.config.js: Remove rewrite from proxy
+- [ ] Update backend/app/__init__.py: Change auth_bp url_prefix to '/api/auth'
+- [ ] Update backend/app/api/auth_routes.py: Change '/session' to '/status'
+- [ ] Update frontend/src/assest/signin.jsx: Change fetch URL to '/api/auth/login'
+- [ ] Update frontend/src/context/AuthContext.jsx: Change '/api/session' to '/api/auth/status'

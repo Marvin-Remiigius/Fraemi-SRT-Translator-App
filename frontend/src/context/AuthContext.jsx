@@ -11,7 +11,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch('/api/session');
+        const res = await fetch('/api/auth/status');
         if (res.ok) {
           const data = await res.json();
           setCurrentUser({ username: data.username });
