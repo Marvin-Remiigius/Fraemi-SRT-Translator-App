@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProjectsDashboard from '../components/ProjectsDashboard.jsx';
 import ProjectWorkspace from '../components/ProjectWorkspace.jsx';
 import CreateProjectModal from '../components/CreateProjectModal.jsx';
@@ -13,24 +13,46 @@ const DashboardPage = () => {
   const [projectToDelete, setProjectToDelete] = useState(null);
   const [toast, setToast] = useState({ show: false, message: '' });
 
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await fetch('/api/projects');
+        if (res.ok) {
+          const data = await res.json();
+          setProjects(data);
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
   const showToast = (message) => {
     setToast({ show: true, message });
     setTimeout(() => setToast({ show: false, message: '' }), 3000);
   };
 
-  const handleCreateProject = (projectName) => {
-    const newProject = {
-      id: Date.now(),
-      name: projectName,
-      created: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
-      status: 'Not Started',
-      targetLang: 'N/A',
-      hasOriginal: false,
-      hasTranslated: false,
-    };
-    setProjects(currentProjects => [...currentProjects, newProject]);
-    setActiveProject(newProject);
-    showToast('🚀 Project created successfully!');
+  const handleCreateProject = async (projectName) => {
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ project_name: projectName }),
+      });
+      if (res.ok) {
+        const newProject = await res.json();
+        setProjects(currentProjects => [newProject, ...currentProjects]);
+        setActiveProject(newProject);
+        showToast('🚀 Project created successfully!');
+      } else {
+        showToast('Error creating project');
+      }
+    } catch (error) {
+      console.error('Error creating project:', error);
+      showToast('Error creating project');
+    }
   };
 
   const openDeleteModal = (project) => {
