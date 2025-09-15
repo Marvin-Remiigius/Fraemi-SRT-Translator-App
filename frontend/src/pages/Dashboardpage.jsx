@@ -47,7 +47,8 @@ const DashboardPage = () => {
         setActiveProject(newProject);
         showToast('🚀 Project created successfully!');
       } else {
-        showToast('Error creating project');
+        const errorData = await res.json();
+        showToast(errorData.error || 'Error creating project');
       }
     } catch (error) {
       console.error('Error creating project:', error);

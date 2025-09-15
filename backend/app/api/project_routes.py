@@ -6,13 +6,16 @@ from .. import db
 project_bp = Blueprint('projects', __name__)
 
 # --- GET and CREATE Projects (No changes) ---
+import pytz
+from datetime import datetime
+
 @project_bp.route('/projects', methods=['GET'])
 @login_required
 def get_projects():
     # ... (existing code) ...
     projects = Project.query.filter_by(user_id=current_user.id).order_by(Project.created_at.desc()).all()
     projects_list = [
-        {'id': p.id, 'name': p.project_name, 'created': p.created_at.isoformat()}
+        {'id': p.id, 'name': p.project_name, 'created': p.created_at.strftime('%Y-%m-%d')}
         for p in projects
     ]
     return jsonify(projects_list)
@@ -22,14 +25,23 @@ def get_projects():
 def create_project():
     # ... (existing code) ...
     data = request.get_json()
+    project_name = data.get('project_name')
+    if not project_name:
+        return jsonify({'error': 'Project name is required'}), 400
+
+    # Check if project with same name already exists for this user
+    existing_project = Project.query.filter_by(user_id=current_user.id, project_name=project_name).first()
+    if existing_project:
+        return jsonify({'error': 'A project with this name already exists'}), 400
+
     new_project = Project(
-        project_name=data.get('project_name'),
+        project_name=project_name,
         user_id=current_user.id
     )
     #Creating a new database session
     db.session.add(new_project)
     db.session.commit()
-    return jsonify({'id': new_project.id, 'name': new_project.project_name, 'created': new_project.created_at.isoformat()}), 201
+    return jsonify({'id': new_project.id, 'name': new_project.project_name, 'created': new_project.created_at.strftime('%Y-%m-%d')}), 201
 
 @project_bp.route('/projects/<int:project_id>', methods=['DELETE'])
 @login_required

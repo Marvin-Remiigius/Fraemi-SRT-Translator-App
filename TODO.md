@@ -1,13 +1,8 @@
-# TODO: Fix Project Dashboard Issues
+# TODO: Enhance Signup Page with Password Strength
 
-## Backend Changes
-- [x] Update get_projects route to return 'name' and 'created' keys
-- [x] Update create_project route to return 'name' and 'created' keys
-- [x] Add DELETE /projects/<project_id> route to delete project and associated SRT files
-
-## Frontend Changes
-- [x] Update handleDeleteProject in Dashboardpage.jsx to send DELETE request to backend
-
-## Testing
-- [x] Test project creation and verify name displays
-- [x] Test project deletion and verify it removes from server
+- [x] Add password strength calculation function to signup.jsx
+- [x] Add state for password strength level
+- [x] Update handleChange to calculate strength on password input
+- [x] Add visual password strength meter below password input
+- [x] Add client-side validation to prevent submission of weak passwords (minimum 8 chars, alphanumeric, uppercase, lowercase, special characters)
+- [ ] Test the signup page functionality
