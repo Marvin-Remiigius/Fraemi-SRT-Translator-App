@@ -44,11 +44,12 @@ def translate_text():
         )
 
         # 3. CALL THE GEMINI API
+        print("Calling Gemini API...")
         # We initialize the generative model
-        # NEW, CORRECT LINE:
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
+        model = genai.GenerativeModel('gemini-1.5-flash')
         # We send the prompt and get the response
         response = model.generate_content(prompt)
+        print("Gemini API call completed.")
 
         # The translated SRT is in the response text
         translated_srt = response.text

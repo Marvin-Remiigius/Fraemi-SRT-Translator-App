@@ -30,6 +30,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [translatedFiles, setTranslatedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState('en');
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -126,7 +127,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             srt_content: file.content,
-            target_language: 'en', // You may want to make this dynamic
+            target_language: targetLanguage,
             file_id: file.id,
           }),
         });
@@ -189,12 +190,34 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
           <div className="bg-gray-800 p-8 rounded-xl mb-8">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold">Files Ready for Translation</h2>
-              <button onClick={handleTranslateAll} disabled={isLoading} className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-5 rounded-lg transition-transform hover:scale-105 shadow-lg flex items-center disabled:bg-gray-500 disabled:scale-100 disabled:cursor-not-allowed">
-                {isLoading && (
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-                )}
-                <span>{isLoading ? 'Processing...' : `Translate All (${uploadedFiles.length})`}</span>
-              </button>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <label htmlFor="language-select" className="text-gray-300">Target Language:</label>
+                  <select
+                    id="language-select"
+                    value={targetLanguage}
+                    onChange={(e) => setTargetLanguage(e.target.value)}
+                    className="bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    <option value="de">German</option>
+                    <option value="it">Italian</option>
+                    <option value="pt">Portuguese</option>
+                    <option value="ru">Russian</option>
+                    <option value="ja">Japanese</option>
+                    <option value="ko">Korean</option>
+                    <option value="zh">Chinese</option>
+                  </select>
+                </div>
+                <button onClick={handleTranslateAll} disabled={isLoading} className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-5 rounded-lg transition-transform hover:scale-105 shadow-lg flex items-center disabled:bg-gray-500 disabled:scale-100 disabled:cursor-not-allowed">
+                  {isLoading && (
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                  )}
+                  <span>{isLoading ? 'Processing...' : `Translate All (${uploadedFiles.length})`}</span>
+                </button>
+              </div>
             </div>
             <ul className="space-y-3">
               {uploadedFiles.map((file, index) => (
