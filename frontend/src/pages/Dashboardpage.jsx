@@ -59,12 +59,24 @@ const DashboardPage = () => {
     setProjectToDelete(project);
   };
 
-  const handleDeleteProject = (projectIdToDelete) => {
-    setProjects(currentProjects => 
-      currentProjects.filter(project => project.id !== projectIdToDelete)
-    );
-    setProjectToDelete(null); 
-    showToast('🗑️ Project deleted successfully!');
+  const handleDeleteProject = async (projectIdToDelete) => {
+    try {
+      const res = await fetch(`/api/projects/${projectIdToDelete}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setProjects(currentProjects =>
+          currentProjects.filter(project => project.id !== projectIdToDelete)
+        );
+        setProjectToDelete(null);
+        showToast('🗑️ Project deleted successfully!');
+      } else {
+        showToast('Error deleting project');
+      }
+    } catch (error) {
+      console.error('Error deleting project:', error);
+      showToast('Error deleting project');
+    }
   };
 
   if (activeProject && projects.some(p => p.id === activeProject.id)) {

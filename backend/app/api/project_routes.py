@@ -12,7 +12,7 @@ def get_projects():
     # ... (existing code) ...
     projects = Project.query.filter_by(user_id=current_user.id).order_by(Project.created_at.desc()).all()
     projects_list = [
-        {'id': p.id, 'project_name': p.project_name, 'created_at': p.created_at.isoformat()}
+        {'id': p.id, 'name': p.project_name, 'created': p.created_at.isoformat()}
         for p in projects
     ]
     return jsonify(projects_list)
@@ -29,7 +29,17 @@ def create_project():
     #Creating a new database session
     db.session.add(new_project)
     db.session.commit()
-    return jsonify({'id': new_project.id, 'project_name': new_project.project_name, 'created_at': new_project.created_at.isoformat()}), 201
+    return jsonify({'id': new_project.id, 'name': new_project.project_name, 'created': new_project.created_at.isoformat()}), 201
+
+@project_bp.route('/projects/<int:project_id>', methods=['DELETE'])
+@login_required
+def delete_project(project_id):
+    project = Project.query.filter_by(id=project_id, user_id=current_user.id).first_or_404()
+    # Delete associated SRT files
+    SrtFile.query.filter_by(project_id=project.id).delete()
+    db.session.delete(project)
+    db.session.commit()
+    return jsonify({'message': 'Project deleted successfully'})
 
 
 # --- File Upload Route (NEW) ---
