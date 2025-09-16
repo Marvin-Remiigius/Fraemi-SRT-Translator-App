@@ -9,7 +9,7 @@
 The Fraemi SRT Translator is architected as a modern web application with a distinct **frontend** and **backend**.
 
 - **Backend:** A robust REST API built with Flask that handles user authentication, secure data storage, project management, and integration with third-party AI translation services.
-- **Frontend (Planned):** A dynamic Single Page Application (SPA) built with React or Vue.js, offering a seamless interface for registration, login, dashboards, and file management.
+- **Frontend:** A dynamic Single Page Application (SPA) built with React, offering a seamless interface for registration, login, dashboards, and file management.
 
 ---
 
@@ -25,7 +25,7 @@ The Fraemi SRT Translator is architected as a modern web application with a dist
   Backend uses Flask's Application Factory pattern and Blueprints for maintainability and scalability.
 
 - **AI Integration Ready**  
-  Designed for seamless integration with AI translation services (e.g., OpenAI API).
+  Designed for seamless integration with AI translation services (e.g., Google Generative AI).
 
 ---
 
@@ -37,9 +37,10 @@ The Fraemi SRT Translator is architected as a modern web application with a dist
 - **ORM:** Flask-SQLAlchemy
 - **Authentication:** Flask-Login, Flask-Bcrypt
 
-### Frontend (Planned)
-- **Framework:** React or Vue.js
-- **Styling:** Tailwind CSS or Material-UI
+### Frontend
+- **Framework:** React
+- **Build Tool:** Vite
+- **Styling:** CSS
 
 ---
 
@@ -49,9 +50,7 @@ The Fraemi SRT Translator is architected as a modern web application with a dist
 - Node.js (v16 or higher is recommended)
 - `npm` (Node Package Manager), which comes with Node.js
 
----
-
-### 2. Installation & Running the App
+### 2. Installation
 
 ```bash
 # Navigate to the frontend directory
@@ -59,9 +58,27 @@ cd frontend
 
 # Install all the required dependencies
 npm install
+```
 
+### 3. Configure Environment Variables
+
+Create a `.env` file in the `frontend` directory to connect with the backend API.
+
+```
+# Example for a Vite-based project
+VITE_API_BASE_URL=http://127.0.0.1:5000
+```
+
+### 4. Running the App
+
+```bash
 # Start the local development server
 npm run dev
+```
+
+The frontend will be available at: **http://localhost:5173** (or similar, check the console output).
+
+---
 
 ## Backend Setup & Installation
 
@@ -69,13 +86,7 @@ npm run dev
 - Python 3.10 or higher
 - `pip` and `venv` for package management
 
-3. Configure Environment Variables
-Create a .env file in the frontend directory to connect with the backend API.
-
-# Example for a Vite-based project (e.g., React, Vue)
-VITE_API_BASE_URL=[http://127.0.0.1:5000](http://127.0.0.1:5000)
-
-### Backend Installation & Setup
+### 2. Installation
 
 ```bash
 # Clone the repository
@@ -88,8 +99,11 @@ python3 -m venv backend/venv
 # Activate (macOS/Linux)
 source backend/venv/bin/activate
 
+# Activate (Windows)
+backend\venv\Scripts\activate
+
 # Install dependencies
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 ### 3. Configure Flask Environment
@@ -98,7 +112,7 @@ Create a `.flaskenv` file in the project root and add:
 
 ```
 FLASK_APP=backend/run.py
-GOOGLE_API_KEY= {API_KEY_PLACEHOLDER}
+GOOGLE_API_KEY={API_KEY_PLACEHOLDER}
 ```
 
 ### 4. Initialize the Database
@@ -109,18 +123,14 @@ flask init-db
 
 This creates `database.db` and all necessary tables.
 
----
-
-## ▶ Running the Server
-
-Start the development server with:
+### 5. Running the Server
 
 ```bash
 python backend/run.py
 ```
 
 The API will now be available at:  
-    **http://127.0.0.1:5000**
+**http://127.0.0.1:5000**
 
 ---
 
@@ -141,6 +151,16 @@ The API will now be available at:
 |--------|-------------------|-----------------------------------------|
 | GET    | `/api/projects`   | Fetch all projects for the user         |
 | POST   | `/api/projects`   | Create a new project for the user       |
+| GET    | `/api/projects/<id>` | Fetch a specific project               |
+| PUT    | `/api/projects/<id>` | Update a project                       |
+| DELETE | `/api/projects/<id>` | Delete a project                       |
+
+### SRT Files (`/api`)  
+*Note: Requires authentication.*
+
+| Method | Endpoint          | Description                             |
+|--------|-------------------|-----------------------------------------|
+| POST   | `/api/translate`  | Translate an SRT file                   |
 
 ---
 
@@ -150,14 +170,14 @@ The API will now be available at:
 - [x] User authentication & session management
 - [x] Project creation & retrieval
 - [x] SRT file upload & management
-- [x] Integration with OpenAI API for translations
+- [x] Integration with Google Generative AI for translations
 
-### Frontend (Planned)
+### Frontend
 - [x] User registration & login UI
-- [ ] Project dashboard & file management UI
+- [x] Project dashboard & file management UI
 - [ ] Character Count Finder
-- [ ] Sign Up
-- [ ] Adding File
+- [ ] Sign Up enhancements
+- [ ] Adding File enhancements
 
 ### Full Stack
 - [ ] Team collaboration features
@@ -168,7 +188,7 @@ The API will now be available at:
 
 ## License
 
-MIT License Registered
+MIT License
 
 ---
 
@@ -180,8 +200,7 @@ Contributions are welcome! Please open issues or submit pull requests.
 
 ## Built by
 
-Students from Panimalar Engineering College IT Department 
+Students from Panimalar Engineering College IT Department  
 Fraemi Vision — [fraemivision.in](https://fraemivision.in)
-
 
 -----
