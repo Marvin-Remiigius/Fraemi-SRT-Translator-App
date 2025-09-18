@@ -124,11 +124,11 @@ const AdvancedEditor = ({ files, showToast }) => {
                 </div>
                 <div className="col-span-4 text-gray-300 whitespace-pre-wrap pt-1">{original.text}</div>
                 <div className="col-span-4">
-                  <textarea
-                    value={translated.text}
-                    onChange={(e) => handleTextChange(index, e.target.value)}
-                    className="editable-textarea custom-scrollbar whitespace-pre-wrap"
-                  />
+<textarea
+  value={translated.text}
+  onChange={(e) => handleTextChange(index, e.target.value)}
+  className="editable-textarea custom-scrollbar whitespace-pre-wrap bg-yellow-100 p-[1mm] border border-orange-400"
+/>
                 </div>
               </div>
             );

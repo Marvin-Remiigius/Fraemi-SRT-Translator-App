@@ -22,7 +22,7 @@ const ProjectCard = ({ project, onProjectClick, onDeleteClick }) => {
       className="bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-yellow-400/20 hover:-translate-y-1 transition-all group"
     >
       <div onClick={onProjectClick} className="cursor-pointer">
-        <h3 className="text-xl font-bold mb-2 truncate">{project.name}</h3>
+<h3 className="text-xl font-bold mb-2 truncate text-white">{project.name}</h3>
         <p className="text-gray-400 text-sm mb-4">Created: {project.created}</p>
       </div>
       <div className="mt-4 pt-4 border-t border-gray-700 flex justify-between items-center">
