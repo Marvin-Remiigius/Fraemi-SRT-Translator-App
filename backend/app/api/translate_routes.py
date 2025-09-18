@@ -68,8 +68,27 @@ def translate_text():
         if not srt_file:
             return jsonify({'error': 'SRT file not found'}), 404
 
+        # Check if translated file already exists
+        translated_filename = f"t_{srt_file.filename.rsplit('.', 1)[0]}_translated.srt"
+        translated_file = SrtFile.query.filter_by(filename=translated_filename, project_id=srt_file.project_id).first()
+        if translated_file:
+            # Already translated, return the existing translated content
+            return jsonify({'translated_srt': translated_file.original_content})
+
+        # Update the original file's translated_content and target_language
         srt_file.translated_content = translated_srt
         srt_file.target_language = target_language
+
+        # Create a new SrtFile for the translated file with name "t_{original_filename}_translated.srt"
+        translated_file = SrtFile(
+            filename=translated_filename,
+            original_content=translated_srt,
+            translated_content=translated_srt,
+            target_language=target_language,
+            project_id=srt_file.project_id
+        )
+        db.session.add(translated_file)
+
         db.session.commit()
 
         return jsonify({'translated_srt': translated_srt})

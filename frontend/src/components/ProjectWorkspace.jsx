@@ -29,24 +29,30 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
 
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [translatedFiles, setTranslatedFiles] = useState([]);
+  const [allFiles, setAllFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [targetLanguage, setTargetLanguage] = useState('en');
   const fileInputRef = useRef(null);
 
-  useEffect(() => {
-    const fetchExistingFiles = async () => {
-      try {
-        const res = await fetch(`/api/projects/${project.id}/files`);
-        if (res.ok) {
-          const files = await res.json();
+  const fetchExistingFiles = async () => {
+    if (!project || !project.id) {
+      console.error('Project or project.id is undefined. Skipping fetchExistingFiles.');
+      return;
+    }
+    try {
+      const res = await fetch(`/api/projects/${project.id}/files`);
+      if (res.ok) {
+        const files = await res.json();
+        setAllFiles(files);
           if (files.length > 0) {
-            const translated = files.filter(f => f.translated_content);
+            const translated = files.filter(f => f.filename.startsWith('t_'));
             if (translated.length > 0) {
               setTranslatedFiles(translated.map(f => ({
                 id: f.id,
                 name: f.filename,
                 content: f.original_content,
-                translatedContent: f.translated_content,
+                translatedContent: f.translated_content || f.original_content,
+                project_id: project.id,
               })));
               setStage('editor');
             } else {
@@ -58,13 +64,16 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
               })));
               setStage('translate');
             }
+          } else {
+            setStage('upload');
           }
-        }
-      } catch (error) {
-        console.error('Error fetching existing files:', error);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching existing files:', error);
+    }
+  };
 
+  useEffect(() => {
     fetchExistingFiles();
   }, [project.id]);
 
@@ -90,7 +99,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
     fileInputRef.current.click();
   };
 
-  const handleTranslateAll = async () => {
+    const handleTranslateAll = async () => {
     setIsLoading(true);
     setUploadedFiles(prevFiles => prevFiles.map(f => ({ ...f, status: 'uploading' })));
 
@@ -142,6 +151,23 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
           translatedContent: translateData.translated_srt,
           status: 'success',
         });
+
+        // After successful translation, fetch the translated file with "t_" prefix
+        const translatedFilename = `t_${file.name.replace(/\.srt$/, '')}_translated.srt`;
+        const translatedFileRes = await fetch(`/api/projects/${project.id}/files`);
+        if (translatedFileRes.ok) {
+          const allFiles = await translatedFileRes.json();
+          const translatedFile = allFiles.find(f => f.filename === translatedFilename);
+          if (translatedFile) {
+            translatedFilesResults.push({
+              id: translatedFile.id,
+              name: translatedFile.filename,
+              content: translatedFile.original_content,
+              translatedContent: translatedFile.original_content,
+              status: 'success',
+            });
+          }
+        }
       } catch (error) {
         showToast(`Error translating ${file.name}: ${error.message}`);
         setIsLoading(false);
@@ -149,9 +175,20 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
       }
     }
 
-    setTranslatedFiles(translatedFilesResults);
+    // Filter out duplicates by filename
+    const uniqueTranslatedFiles = [];
+    const seenNames = new Set();
+    for (const f of translatedFilesResults) {
+      if (!seenNames.has(f.name)) {
+        uniqueTranslatedFiles.push(f);
+        seenNames.add(f.name);
+      }
+    }
+
+    setTranslatedFiles(uniqueTranslatedFiles);
     setIsLoading(false);
     setStage('editor');
+    fetchExistingFiles(); // Refresh allFiles
   };
 
   const handleRemoveFile = (fileNameToRemove) => {
@@ -162,11 +199,68 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
     }
   };
 
+  const handleDownload = async (fileId, filename) => {
+    try {
+      const res = await fetch(`/api/srt-files/${fileId}/download`);
+      if (res.ok) {
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Use the original filename for download, but ensure it ends with .srt
+        let downloadFilename = filename;
+        if (!downloadFilename.toLowerCase().endsWith('.srt')) {
+          downloadFilename += '.srt';
+        }
+        a.download = downloadFilename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        showToast('Failed to download file');
+      }
+    } catch (error) {
+      showToast('Error downloading file');
+    }
+  };
+
+  const handleEdit = (file) => {
+    const isTranslatedFile = file.filename.startsWith('t_');
+    const fileObj = {
+      id: file.id,
+      name: file.filename,
+      content: file.original_content,
+      translatedContent: isTranslatedFile ? file.original_content : file.original_content,
+      isTranslatedFile: isTranslatedFile,
+      project_id: project.id,
+    };
+    setTranslatedFiles([fileObj]);
+    setStage('editor');
+  };
+
+  // Add a callback to refresh files after save
+  const refreshFilesAfterSave = async () => {
+    await fetchExistingFiles();
+    // Update the translatedFiles with the latest content from DB
+    if (translatedFiles.length > 0) {
+      const updatedFile = allFiles.find(f => f.id === translatedFiles[0].id);
+      if (updatedFile) {
+        setTranslatedFiles([{
+          id: updatedFile.id,
+          name: updatedFile.filename,
+          content: updatedFile.original_content,
+          translatedContent: updatedFile.translated_content || updatedFile.original_content,
+        }]);
+      }
+    }
+  };
+
   return (
     <div>
-      <input 
+      <input
         type="file" ref={fileInputRef} onChange={handleFileChange}
-        accept=".srt" multiple style={{ display: 'none' }} 
+        accept=".srt" multiple style={{ display: 'none' }}
       />
       <div className="flex items-center mb-8">
         <button onClick={onBack} className="text-gray-400 hover:text-white mr-4">
@@ -174,6 +268,38 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
         </button>
         <h1 className="text-4xl font-extrabold tracking-tight">{project.project_name}</h1>
       </div>
+
+      {allFiles.length > 0 && (
+        <div className="bg-gray-800 p-8 rounded-xl mb-8">
+          <h2 className="text-2xl font-bold mb-4">Project Files</h2>
+          <ul className="space-y-3">
+            {allFiles.map((file) => (
+              <li key={file.id} className="bg-gray-900 p-4 rounded-lg flex justify-between items-center text-sm">
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-gray-300">{file.filename}</span>
+                  <span className={`text-xs px-2 py-1 rounded ${file.filename.startsWith('t_') ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'}`}>
+                    {file.filename.startsWith('t_') ? 'Translated' : 'Original'}
+                  </span>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleEdit(file)}
+                    className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-1 px-3 rounded-lg text-xs"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDownload(file.id, file.filename)}
+                    className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-1 px-3 rounded-lg text-xs"
+                  >
+                    Download
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {stage === 'upload' && (
         <div className="text-center bg-gray-800 p-12 rounded-xl border-2 border-dashed border-gray-600">
@@ -240,7 +366,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
         </div>
       )}
 
-      {stage === 'editor' && <AdvancedEditor files={translatedFiles} showToast={showToast} />}
+      {stage === 'editor' && <AdvancedEditor files={translatedFiles} showToast={showToast} onSave={refreshFilesAfterSave} projectId={project.id} />}
     </div>
   );
 };

@@ -46,12 +46,19 @@ def create_project():
 @project_bp.route('/projects/<int:project_id>', methods=['DELETE'])
 @login_required
 def delete_project(project_id):
-    project = Project.query.filter_by(id=project_id, user_id=current_user.id).first_or_404()
-    # Delete associated SRT files
-    SrtFile.query.filter_by(project_id=project.id).delete()
-    db.session.delete(project)
-    db.session.commit()
-    return jsonify({'message': 'Project deleted successfully'})
+    try:
+        project = Project.query.filter_by(id=project_id, user_id=current_user.id).first_or_404()
+        # Delete associated SRT files
+        # Use synchronize_session=False to avoid session issues
+        SrtFile.query.filter_by(project_id=project.id).delete(synchronize_session=False)
+        db.session.delete(project)
+        db.session.commit()
+        return jsonify({'message': 'Project deleted successfully'})
+    except Exception as e:
+        import traceback
+        tb_str = traceback.format_exc()
+        print(tb_str)
+        return jsonify({'error': f'Failed to delete project: {str(e)}', 'traceback': tb_str}), 500
 
 
 # --- File Upload Route (NEW) ---
@@ -78,22 +85,33 @@ def upload_srt_file(project_id):
     if file and file.filename.endswith('.srt'):
         # Read the content of the file as a string.
         original_content = file.read().decode('utf-8')
-        
-        # 4. Create a new SrtFile record in the database.
-        new_srt_file = SrtFile(
-            filename=file.filename,
-            original_content=original_content,
-            project_id=project.id  # Link it to the parent project
-        )
-        
-        # 5. Add to the session and commit.
-        db.session.add(new_srt_file)
-        db.session.commit()
 
-        return jsonify({
-            'message': f'File "{file.filename}" uploaded successfully to project: {project.project_name}',
-            'file_id': new_srt_file.id
-        }), 200
+        # 4. Check if a file with the same filename already exists in the project.
+        existing_file = SrtFile.query.filter_by(filename=file.filename, project_id=project.id).first()
+        if existing_file:
+            # Update the existing file's content
+            existing_file.original_content = original_content
+            db.session.commit()
+            return jsonify({
+                'message': f'File "{file.filename}" updated successfully in project: {project.project_name}',
+                'file_id': existing_file.id
+            }), 200
+        else:
+            # Create a new SrtFile record in the database.
+            new_srt_file = SrtFile(
+                filename=file.filename,
+                original_content=original_content,
+                project_id=project.id  # Link it to the parent project
+            )
+
+            # 5. Add to the session and commit.
+            db.session.add(new_srt_file)
+            db.session.commit()
+
+            return jsonify({
+                'message': f'File "{file.filename}" uploaded successfully to project: {project.project_name}',
+                'file_id': new_srt_file.id
+            }), 200
     else:
         return jsonify({'error': 'Invalid file type, please upload an .srt file'}), 400
 
@@ -102,7 +120,7 @@ def upload_srt_file(project_id):
 def get_srt_files(project_id):
     project = Project.query.filter_by(id=project_id, user_id=current_user.id).first_or_404()
     files = SrtFile.query.filter_by(project_id=project.id).all()
-    files_list = [{'id': f.id, 'filename': f.filename, 'original_content': f.original_content} for f in files]
+    files_list = [{'id': f.id, 'filename': f.filename, 'original_content': f.original_content, 'translated_content': f.translated_content} for f in files]
     return jsonify(files_list)
 
 
@@ -142,10 +160,11 @@ def download_srt_file(file_id):
         Project.user_id == current_user.id
     ).first_or_404()
 
-    if not srt_file.translated_content:
-        return jsonify({'error': 'No translated content available'}), 400
+    content = srt_file.translated_content or srt_file.original_content
+    if not content:
+        return jsonify({'error': 'No content available'}), 400
 
     from flask import Response
-    response = Response(srt_file.translated_content, mimetype='text/plain')
+    response = Response(content, mimetype='text/plain')
     response.headers['Content-Disposition'] = f'attachment; filename={srt_file.filename}'
     return response

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ProjectsDashboard from '../components/ProjectsDashboard.jsx';
 import ProjectWorkspace from '../components/ProjectWorkspace.jsx';
@@ -16,7 +15,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch('/api/projects');
+        const res = await fetch('/api/projects', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           setProjects(data);
@@ -39,6 +38,7 @@ const DashboardPage = () => {
       const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ project_name: projectName }),
       });
       if (res.ok) {
@@ -63,7 +63,8 @@ const DashboardPage = () => {
   const handleDeleteProject = async (projectIdToDelete) => {
     try {
       const res = await fetch(`/api/projects/${projectIdToDelete}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: 'include',
       });
       if (res.ok) {
         setProjects(currentProjects =>

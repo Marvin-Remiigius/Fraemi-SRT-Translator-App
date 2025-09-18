@@ -1,8 +1,6 @@
-# TODO: Enhance Signup Page with Password Strength
-
-- [x] Add password strength calculation function to signup.jsx
-- [x] Add state for password strength level
-- [x] Update handleChange to calculate strength on password input
-- [x] Add visual password strength meter below password input
-- [x] Add client-side validation to prevent submission of weak passwords (minimum 8 chars, alphanumeric, uppercase, lowercase, special characters)
-- [ ] Test the signup page functionality
+- [x] Modify handleEdit in ProjectWorkspace.jsx to differentiate between original and translated files for editing.
+- [x] Ensure that when editing original files, the editable column shows original text.
+- [x] When editing translated files, the editable column shows translated text.
+- [x] After saving changes in AdvancedEditor, refresh or update the file content in ProjectWorkspace to reflect the saved changes.
+- [x] Fix the download issue for translated SRT files by correcting the API URLs to include /projects prefix.
+- [x] Add onSave callback to AdvancedEditor to refresh files after save.
