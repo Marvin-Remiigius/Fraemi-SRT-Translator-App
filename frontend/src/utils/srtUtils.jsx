@@ -19,14 +19,28 @@ export const getCPSColor = (cps) => {
 };
 
 export const parseSRT = (srtText) => {
-    const blocks = srtText.trim().split('\n\n');
+    const lines = srtText.trim().split(/\r?\n/);
+    const blocks = [];
+    let block = [];
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (/^\d+$/.test(line) && block.length > 0) {
+            blocks.push(block);
+            block = [];
+        }
+        if (line.length > 0) {
+            block.push(line);
+        }
+    }
+    if (block.length > 0) {
+        blocks.push(block);
+    }
     return blocks.map(block => {
-        const lines = block.split('\n');
-        if (lines.length >= 3) {
+        if (block.length >= 3) {
             return {
-                number: lines[0],
-                timeline: lines[1],
-                text: lines.slice(2).join('\n')
+                number: block[0],
+                timeline: block[1],
+                text: block.slice(2).join('\n')
             };
         }
         return null;

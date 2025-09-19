@@ -14,11 +14,45 @@ const AdvancedEditor = ({ files, showToast, onSave, projectId }) => {
   useEffect(() => {
     // Initialize parsedContent only if no edits have been made yet
     if (!hasEdits) {
-      const parsedData = files.map(file => ({
-        ...file,
-        parsedContent: parseSRT(file.translatedContent || file.content), // Use translatedContent if available, else original content
-        project_id: file.project_id, // Add project_id for fetch after save
-      }));
+      // Find translated file content map by file id or name
+      const translatedContentMap = {};
+      files.forEach(file => {
+        if (file.translatedContent) {
+          translatedContentMap[file.id || file.name] = parseSRT(file.translatedContent);
+        }
+      });
+
+      const parsedData = files.map(file => {
+        const originalParsed = parseSRT(file.content);
+        const translatedParsed = translatedContentMap[file.id || file.name];
+
+        // If translated parsed content exists, merge timeline from translated into original
+        if (translatedParsed && originalParsed.length === translatedParsed.length) {
+          // Use parseSRT to get properly parsed original blocks
+          const originalParsedBlocks = parseSRT(file.content);
+          const mergedParsed = translatedParsed.map((translatedLine, idx) => {
+            const originalBlock = originalParsedBlocks[idx] || { text: '' };
+            return {
+              number: translatedLine.number,
+              timeline: translatedLine.timeline,
+              text: originalBlock.text,
+            };
+          });
+          return {
+            ...file,
+            parsedContent: mergedParsed,
+            project_id: file.project_id,
+          };
+        } else {
+          // Fallback to translatedContent or original content parsing
+          return {
+            ...file,
+            parsedContent: parseSRT(file.translatedContent || file.content),
+            project_id: file.project_id,
+          };
+        }
+      });
+
       setFilesData(parsedData);
     }
   }, [files, hasEdits]);
