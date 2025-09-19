@@ -73,6 +73,7 @@ const SignUp = () => {
       }
     } catch (error) {
       setLoading(false);
+      console.error('Signup error:', error);
       setMessage('An error occurred. Please check your connection.');
     }
   };

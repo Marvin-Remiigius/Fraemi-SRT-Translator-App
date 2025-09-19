@@ -26,12 +26,14 @@ def register():
         password_hash=hashed_password
     )
     db.session.add(new_user)
+    import logging
     try:
         db.session.commit()
         return jsonify({'message': 'User registered successfully'}), 201
-    except IntegrityError:
+    except Exception as e:
         db.session.rollback()
-        return jsonify({'error': 'User with that username or email already exists'}), 409
+        logging.error(f"Error during user registration: {e}")
+        return jsonify({'error': 'Registration failed due to server error'}), 500
 
 @auth_bp.route('/login', methods=['POST'])
 def login():

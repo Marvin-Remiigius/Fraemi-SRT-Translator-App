@@ -4,44 +4,37 @@ import { parseSRT, calculateCPS, getCPSColor } from '../utils/srtUtils.jsx';
 const AdvancedEditor = ({ files, showToast, onSave, projectId }) => {
   // State to track which file is currently being edited
   const [activeFileIndex, setActiveFileIndex] = useState(0);
-  // State to hold the data for all files
+  // State to hold the data for all files with unified parsed content
   const [filesData, setFilesData] = useState([]);
   // State for save loading
   const [isSaving, setIsSaving] = useState(false);
 
+  const [hasEdits, setHasEdits] = React.useState(false);
+
   useEffect(() => {
-    // When files are passed as props, parse them and set up the initial state
-    const parsedData = files.map(file => ({
-      ...file,
-      originalParsed: parseSRT(file.content),
-      translatedParsed: parseSRT(file.translatedContent), // Assuming this structure
-      project_id: file.project_id, // Add project_id for fetch after save
-    }));
-    setFilesData(parsedData);
-  }, [files]);
+    // Initialize parsedContent only if no edits have been made yet
+    if (!hasEdits) {
+      const parsedData = files.map(file => ({
+        ...file,
+        parsedContent: parseSRT(file.translatedContent || file.content), // Use translatedContent if available, else original content
+        project_id: file.project_id, // Add project_id for fetch after save
+      }));
+      setFilesData(parsedData);
+    }
+  }, [files, hasEdits]);
 
   const handleTextChange = (lineIndex, newText) => {
     const updatedFilesData = [...filesData];
-    // Determine if file is original or translated by filename prefix
-    const isTranslatedFile = filesData[activeFileIndex].name.startsWith('t_');
-    if (isTranslatedFile) {
-      updatedFilesData[activeFileIndex].translatedParsed[lineIndex].text = newText;
-    } else {
-      // For original files, update originalParsed text
-      updatedFilesData[activeFileIndex].originalParsed[lineIndex].text = newText;
-      // Also keep translatedParsed in sync for save
-      updatedFilesData[activeFileIndex].translatedParsed[lineIndex].text = newText;
-    }
+    updatedFilesData[activeFileIndex].parsedContent[lineIndex].text = newText;
     setFilesData(updatedFilesData);
+    setHasEdits(true);
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     const activeFile = filesData[activeFileIndex];
-    // Determine if file is original or translated by filename prefix
-    const isTranslatedFile = activeFile.name.startsWith('t_');
     // Reconstruct the content from parsed data
-    const contentToSave = (isTranslatedFile ? activeFile.translatedParsed : activeFile.originalParsed).map(line =>
+    const contentToSave = activeFile.parsedContent.map(line =>
       `${line.number}\n${line.timeline}\n${line.text}\n`
     ).join('\n');
 
@@ -54,25 +47,7 @@ const AdvancedEditor = ({ files, showToast, onSave, projectId }) => {
       if (!response.ok) {
         throw new Error('Failed to save changes');
       }
-      // After successful save, fetch updated content from DB
-      const fetchRes = await fetch(`/api/projects/${activeFile.project_id}/files`);
-      if (fetchRes.ok) {
-        const allFiles = await fetchRes.json();
-        const updatedFile = allFiles.find(f => f.id === activeFile.id);
-        if (updatedFile) {
-          // Use translated_content if available for translated files, else original_content
-          const contentToParse = isTranslatedFile && updatedFile.translated_content ? updatedFile.translated_content : updatedFile.original_content;
-          const updatedParsed = parseSRT(contentToParse);
-          const updatedFilesData = [...filesData];
-          if (isTranslatedFile) {
-            updatedFilesData[activeFileIndex].translatedParsed = updatedParsed;
-          } else {
-            updatedFilesData[activeFileIndex].originalParsed = updatedParsed;
-            updatedFilesData[activeFileIndex].translatedParsed = updatedParsed;
-          }
-          setFilesData(updatedFilesData);
-        }
-      }
+      // No state update or fetch after save to keep editable content unchanged
       showToast('✅ Changes saved successfully!');
       if (onSave) onSave();
     } catch (error) {
@@ -140,20 +115,16 @@ const AdvancedEditor = ({ files, showToast, onSave, projectId }) => {
         </div>
         {/* Editor Rows */}
         <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
-          {activeFileData.originalParsed.map((original, index) => {
-            // Determine if file is translated
-            const isTranslatedFile = activeFileData.name.startsWith('t_');
-            // Show editable text based on file type
-            const editableText = isTranslatedFile ? activeFileData.translatedParsed[index]?.text : activeFileData.originalParsed[index]?.text;
-            if (editableText === undefined) return null; // Handle missing lines
-            const cps = calculateCPS(original.timeline, editableText);
+          {activeFileData.parsedContent.map((line, index) => {
+            const editableText = line.text;
+            const cps = calculateCPS(line.timeline, editableText);
             const cpsColor = getCPSColor(cps);
 
             return (
-              <div key={original.number} className="grid grid-cols-9 gap-4 p-4 border-b border-gray-700 items-start hover:bg-gray-700/50 transition-colors">
-                <div className="col-span-1 text-center text-gray-500 pt-1">{original.number}</div>
+              <div key={line.number} className="grid grid-cols-9 gap-4 p-4 border-b border-gray-700 items-start hover:bg-gray-700/50 transition-colors">
+                <div className="col-span-1 text-center text-gray-500 pt-1">{line.number}</div>
                 <div className="col-span-3 text-gray-400 pt-1">
-                  {original.timeline.replace(/-->/g, '→')}
+                  {line.timeline.replace(/-->/g, '→')}
                   <div className={`text-xs font-bold mt-1 ${cpsColor}`}>CPS: {cps}</div>
                 </div>
                 <div className="col-span-5">
