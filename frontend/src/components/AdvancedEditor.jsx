@@ -1,87 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { parseSRT, calculateCPS, getCPSColor } from '../utils/srtUtils.jsx';
 
-const AdvancedEditor = ({ files, showToast, onSave, projectId }) => {
-  // State to track which file is currently being edited
-  const [activeFileIndex, setActiveFileIndex] = useState(0);
-  // State to hold the data for all files with unified parsed content
-  const [filesData, setFilesData] = useState([]);
-  // State for save loading
+const AdvancedEditor = ({ file, showToast, onSave, onBack }) => {
+  const [parsedContent, setParsedContent] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
 
-  const [hasEdits, setHasEdits] = React.useState(false);
-
   useEffect(() => {
-    // Initialize parsedContent only if no edits have been made yet
-    if (!hasEdits) {
-      // Find translated file content map by file id or name
-      const translatedContentMap = {};
-      files.forEach(file => {
-        if (file.translatedContent) {
-          translatedContentMap[file.id || file.name] = parseSRT(file.translatedContent);
-        }
-      });
-
-      const parsedData = files.map(file => {
-        const originalParsed = parseSRT(file.content);
-        const translatedParsed = translatedContentMap[file.id || file.name];
-
-        // If translated parsed content exists, merge timeline from translated into original
-        if (translatedParsed && originalParsed.length === translatedParsed.length) {
-          // Use parseSRT to get properly parsed original blocks
-          const originalParsedBlocks = parseSRT(file.content);
-          const mergedParsed = translatedParsed.map((translatedLine, idx) => {
-            const originalBlock = originalParsedBlocks[idx] || { text: '' };
-            return {
-              number: translatedLine.number,
-              timeline: translatedLine.timeline,
-              text: originalBlock.text,
-            };
-          });
-          return {
-            ...file,
-            parsedContent: mergedParsed,
-            project_id: file.project_id,
-          };
-        } else {
-          // Fallback to translatedContent or original content parsing
-          return {
-            ...file,
-            parsedContent: parseSRT(file.translatedContent || file.content),
-            project_id: file.project_id,
-          };
-        }
-      });
-
-      setFilesData(parsedData);
+    if (file && file.content) {
+      setParsedContent(parseSRT(file.content));
     }
-  }, [files, hasEdits]);
+  }, [file]);
 
   const handleTextChange = (lineIndex, newText) => {
-    const updatedFilesData = [...filesData];
-    updatedFilesData[activeFileIndex].parsedContent[lineIndex].text = newText;
-    setFilesData(updatedFilesData);
-    setHasEdits(true);
+    const updatedContent = [...parsedContent];
+    updatedContent[lineIndex].text = newText;
+    setParsedContent(updatedContent);
   };
 
   const handleSave = async () => {
     setIsSaving(true);
-    const activeFile = filesData[activeFileIndex];
-    // Reconstruct the content from parsed data
-    const contentToSave = activeFile.parsedContent.map(line =>
-      `${line.number}\n${line.timeline}\n${line.text}\n`
-    ).join('\n');
+    const contentToSave = parsedContent.map(line =>
+      `${line.number}\n${line.timeline}\n${line.text}`
+    ).join('\n\n');
 
     try {
-      const response = await fetch(`/api/srt-files/${activeFile.id}/save`, {
+      const response = await fetch(`/api/translated-files/${file.id}/save`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ translated_content: contentToSave }),
+        body: JSON.stringify({ content: contentToSave }),
       });
       if (!response.ok) {
         throw new Error('Failed to save changes');
       }
-      // No state update or fetch after save to keep editable content unchanged
       showToast('✅ Changes saved successfully!');
       if (onSave) onSave();
     } catch (error) {
@@ -91,67 +41,34 @@ const AdvancedEditor = ({ files, showToast, onSave, projectId }) => {
     }
   };
 
-  const handleDownload = async () => {
-    try {
-      const response = await fetch(`/api/srt-files/${filesData[activeFileIndex].id}/download`);
-      if (!response.ok) {
-        throw new Error('Failed to download file');
-      }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filesData[activeFileIndex].name;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      showToast('✅ File downloaded successfully!');
-    } catch (error) {
-      showToast(`❌ Error downloading file: ${error.message}`);
-    }
-  };
-  
-  const activeFileData = filesData[activeFileIndex];
-
-  if (!activeFileData) {
+  if (!file) {
     return <div className="text-center text-gray-500">Loading editor...</div>;
   }
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        {/* File Selector Dropdown */}
-        <select 
-          value={activeFileIndex}
-          onChange={(e) => setActiveFileIndex(Number(e.target.value))}
-          className="bg-gray-700 border border-gray-600 rounded-lg p-2 text-white focus:outline-none focus:ring-2 focus:ring-yellow-400"
-        >
-          {filesData.map((file, index) => (
-            <option key={index} value={index}>{file.name}</option>
-          ))}
-        </select>
-        
-        <div className="flex space-x-4">
-          <button onClick={handleSave} disabled={isSaving} className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-5 rounded-lg transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
-          <button onClick={handleDownload} className="bg-green-500 hover:bg-green-400 text-black font-bold py-2 px-5 rounded-lg transition-colors">Download .srt</button>
-        </div>
+      <div className="flex items-center mb-6">
+        <button onClick={onBack} className="text-gray-400 hover:text-white mr-4">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+        </button>
+        <h2 className="text-2xl font-bold">Editing: {file.name}</h2>
+      </div>
+      
+      <div className="flex justify-end mb-4">
+        <button onClick={handleSave} disabled={isSaving} className="bg-green-500 hover:bg-green-400 text-white font-semibold py-2 px-5 rounded-lg transition-colors disabled:bg-gray-500 disabled:cursor-not-allowed">
+          {isSaving ? 'Saving...' : 'Save Changes'}
+        </button>
       </div>
 
       <div className="bg-gray-800 rounded-xl p-2 font-mono text-sm">
-        {/* Editor Header */}
         <div className="grid grid-cols-9 gap-4 text-gray-400 font-bold p-4 border-b border-gray-700">
           <div className="col-span-1 text-center">#</div>
           <div className="col-span-3">Timeline & CPS</div>
           <div className="col-span-5 text-yellow-400">Editable Text</div>
         </div>
-        {/* Editor Rows */}
         <div className="max-h-[60vh] overflow-y-auto custom-scrollbar">
-          {activeFileData.parsedContent.map((line, index) => {
-            const editableText = line.text;
-            const cps = calculateCPS(line.timeline, editableText);
+          {parsedContent.map((line, index) => {
+            const cps = calculateCPS(line.timeline, line.text);
             const cpsColor = getCPSColor(cps);
 
             return (
@@ -163,9 +80,10 @@ const AdvancedEditor = ({ files, showToast, onSave, projectId }) => {
                 </div>
                 <div className="col-span-5">
                   <textarea
-                    value={editableText}
+                    value={line.text}
                     onChange={(e) => handleTextChange(index, e.target.value)}
-                    className="editable-textarea custom-scrollbar whitespace-pre-wrap bg-yellow-100 p-[1mm] border border-orange-400"
+                    className="w-full bg-gray-900 text-white p-2 rounded border border-gray-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                    rows={3}
                   />
                 </div>
               </div>
