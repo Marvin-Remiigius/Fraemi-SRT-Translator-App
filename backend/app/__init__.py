@@ -10,11 +10,16 @@ bcrypt = Bcrypt()
 login_manager = LoginManager()
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, instance_relative_config=True)
 
-    basedir = os.path.abspath(os.path.dirname(__file__))
+    # --- Database Configuration ---
+    # This ensures the instance folder is created and the database file is placed there.
+    db_path = os.path.join(app.instance_path)
+    if not os.path.exists(db_path):
+        os.makedirs(db_path)
+    
     app.config['SECRET_KEY'] = os.urandom(24)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, '..', 'instance', 'database.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(db_path, 'database.db')}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize Extensions
