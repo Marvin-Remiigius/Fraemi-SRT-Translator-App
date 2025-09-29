@@ -1,5 +1,5 @@
 from app import create_app, db
-from app.models import User, Project, SrtFile
+from app.models import User, Project, SrtFile, TranslatedFile
 
 app = create_app()
 

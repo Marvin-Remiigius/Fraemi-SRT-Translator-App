@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, current_user
-from ..models import Project, SrtFile # <-- Import the new SrtFile model
+from ..models import Project, SrtFile, TranslatedFile
 from .. import db
 
 project_bp = Blueprint('projects', __name__)
@@ -115,56 +115,72 @@ def upload_srt_file(project_id):
     else:
         return jsonify({'error': 'Invalid file type, please upload an .srt file'}), 400
 
-@project_bp.route('/projects/<int:project_id>/files', methods=['GET'])
+@project_bp.route('/projects/<int:project_id>', methods=['GET'])
 @login_required
-def get_srt_files(project_id):
+def get_project_details(project_id):
     project = Project.query.filter_by(id=project_id, user_id=current_user.id).first_or_404()
-    files = SrtFile.query.filter_by(project_id=project.id).all()
-    files_list = [{'id': f.id, 'filename': f.filename, 'original_content': f.original_content, 'translated_content': f.translated_content} for f in files]
-    return jsonify(files_list)
+    
+    original_files = SrtFile.query.filter_by(project_id=project.id).all()
+    
+    files_data = []
+    for f in original_files:
+        translations = TranslatedFile.query.filter_by(original_file_id=f.id).all()
+        files_data.append({
+            'id': f.id,
+            'filename': f.filename,
+            'original_content': f.original_content,
+            'translations': [{
+                'id': t.id,
+                'content': t.content,
+                'target_language': t.target_language
+            } for t in translations]
+        })
+
+    return jsonify({
+        'id': project.id,
+        'project_name': project.project_name,
+        'files': files_data
+    })
 
 
-# --- Save Edited SRT Content ---
-@project_bp.route('/srt-files/<int:file_id>/save', methods=['PUT'])
+# --- Save Edited Translated Content ---
+@project_bp.route('/translated-files/<int:file_id>/save', methods=['PUT'])
 @login_required
-def save_srt_file(file_id):
+def save_translated_file(file_id):
     """
-    Updates the translated content of an SRT file.
+    Updates the content of a translated file.
     """
-    # Find the SRT file and ensure it belongs to the current user via project
-    srt_file = SrtFile.query.join(Project).filter(
-        SrtFile.id == file_id,
+    translated_file = TranslatedFile.query.join(Project).filter(
+        TranslatedFile.id == file_id,
         Project.user_id == current_user.id
     ).first_or_404()
 
     data = request.get_json()
-    if not data or 'translated_content' not in data:
-        return jsonify({'error': 'Missing translated_content in request'}), 400
+    if not data or 'content' not in data:
+        return jsonify({'error': 'Missing content in request'}), 400
 
-    srt_file.translated_content = data['translated_content']
+    translated_file.content = data['content']
     db.session.commit()
 
-    return jsonify({'message': 'SRT file saved successfully'})
+    return jsonify({'message': 'Translated file saved successfully'})
 
 
 # --- Download Translated SRT File ---
-@project_bp.route('/srt-files/<int:file_id>/download', methods=['GET'])
+@project_bp.route('/translated-files/<int:file_id>/download', methods=['GET'])
 @login_required
-def download_srt_file(file_id):
+def download_translated_file(file_id):
     """
-    Downloads the translated SRT file.
+    Downloads a translated SRT file.
     """
-    # Find the SRT file and ensure it belongs to the current user via project
-    srt_file = SrtFile.query.join(Project).filter(
-        SrtFile.id == file_id,
+    translated_file = TranslatedFile.query.join(Project).filter(
+        TranslatedFile.id == file_id,
         Project.user_id == current_user.id
     ).first_or_404()
 
-    content = srt_file.translated_content or srt_file.original_content
-    if not content:
-        return jsonify({'error': 'No content available'}), 400
+    original_file = SrtFile.query.get(translated_file.original_file_id)
+    filename = f"{original_file.filename.split('.')[0]}_{translated_file.target_language}.srt"
 
     from flask import Response
-    response = Response(content, mimetype='text/plain')
-    response.headers['Content-Disposition'] = f'attachment; filename={srt_file.filename}'
+    response = Response(translated_file.content, mimetype='text/plain')
+    response.headers['Content-Disposition'] = f'attachment; filename={filename}'
     return response

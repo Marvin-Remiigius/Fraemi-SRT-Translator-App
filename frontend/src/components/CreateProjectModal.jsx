@@ -17,7 +17,7 @@ const CreateProjectModal = ({ isOpen, onClose, onCreate }) => {
   return (
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50" onClick={onClose}>
       <div className="bg-gray-800 w-full max-w-md rounded-2xl p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-2xl font-bold mb-6">Create a New Project</h2>
+        <h2 className="text-2xl font-bold mb-6 text-white">Create a New Project</h2>
         <form onSubmit={handleSubmit}>
           <label htmlFor="new-project-name" className="block text-sm font-medium text-gray-400 mb-2">Project Name</label>
           <input

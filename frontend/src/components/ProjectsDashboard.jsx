@@ -69,7 +69,7 @@ const ProjectsDashboard = ({ projects, onProjectClick, onCreateClick, onDeleteCl
         </div>
       ) : (
         <div className="bg-gray-800 p-12 rounded-xl text-center">
-          <h2 className="text-2xl font-bold mb-2">No Projects Found</h2>
+          <h2 className="text-2xl font-bold mb-2 text-white">No Projects Found</h2>
           <p className="text-gray-400">Click "+ Create New Project" to get started.</p>
         </div>
       )}
