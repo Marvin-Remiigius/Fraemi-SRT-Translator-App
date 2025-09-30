@@ -24,7 +24,7 @@ const AdvancedEditor = ({ file, showToast, onSave, onBack }) => {
     ).join('\n\n');
 
     try {
-      const response = await fetch(`/api/translated-files/${file.id}/save`, {
+      const response = await fetch(`/api/projects/translated-files/${file.id}/save`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: contentToSave }),
