@@ -45,7 +45,7 @@ def create_app():
     from .api.project_routes import project_bp
     from .api.translate_routes import translate_bp
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    app.register_blueprint(project_bp, url_prefix='/api')
-    app.register_blueprint(translate_bp, url_prefix='/api')
+    app.register_blueprint(project_bp, url_prefix='/api/projects')
+    app.register_blueprint(translate_bp, url_prefix='/api/translate')
 
     return app

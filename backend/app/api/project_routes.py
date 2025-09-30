@@ -9,7 +9,7 @@ project_bp = Blueprint('projects', __name__)
 import pytz
 from datetime import datetime
 
-@project_bp.route('/projects', methods=['GET'])
+@project_bp.route('/', methods=['GET'])
 @login_required
 def get_projects():
     # ... (existing code) ...
@@ -20,7 +20,7 @@ def get_projects():
     ]
     return jsonify(projects_list)
 
-@project_bp.route('/projects', methods=['POST'])
+@project_bp.route('/', methods=['POST'])
 @login_required
 def create_project():
     # ... (existing code) ...
@@ -43,7 +43,7 @@ def create_project():
     db.session.commit()
     return jsonify({'id': new_project.id, 'name': new_project.project_name, 'created': new_project.created_at.strftime('%Y-%m-%d')}), 201
 
-@project_bp.route('/projects/<int:project_id>', methods=['DELETE'])
+@project_bp.route('/<int:project_id>', methods=['DELETE'])
 @login_required
 def delete_project(project_id):
     try:
@@ -62,7 +62,7 @@ def delete_project(project_id):
 
 
 # --- File Upload Route (NEW) ---
-@project_bp.route('/projects/<int:project_id>/upload', methods=['POST'])
+@project_bp.route('/<int:project_id>/upload', methods=['POST'])
 @login_required
 def upload_srt_file(project_id):
     """
@@ -115,7 +115,7 @@ def upload_srt_file(project_id):
     else:
         return jsonify({'error': 'Invalid file type, please upload an .srt file'}), 400
 
-@project_bp.route('/projects/<int:project_id>', methods=['GET'])
+@project_bp.route('/<int:project_id>', methods=['GET'])
 @login_required
 def get_project_details(project_id):
     project = Project.query.filter_by(id=project_id, user_id=current_user.id).first_or_404()
@@ -141,6 +141,29 @@ def get_project_details(project_id):
         'project_name': project.project_name,
         'files': files_data
     })
+
+@project_bp.route('/<int:project_id>/translated-files', methods=['GET'])
+@login_required
+def get_translated_files(project_id):
+    """
+    Fetches all translated files for a specific project.
+    """
+    project = Project.query.filter_by(id=project_id, user_id=current_user.id).first_or_404()
+    
+    translations = db.session.query(
+        TranslatedFile, SrtFile.filename
+    ).join(SrtFile, TranslatedFile.original_file_id == SrtFile.id).filter(
+        TranslatedFile.project_id == project.id
+    ).all()
+
+    result = [{
+        'id': t.id,
+        'content': t.content,
+        'target_language': t.target_language,
+        'original_filename': filename
+    } for t, filename in translations]
+    
+    return jsonify(result)
 
 
 # --- Save Edited Translated Content ---
@@ -184,3 +207,18 @@ def download_translated_file(file_id):
     response = Response(translated_file.content, mimetype='text/plain')
     response.headers['Content-Disposition'] = f'attachment; filename={filename}'
     return response
+
+# --- Delete an SRT File ---
+@project_bp.route('/srt-files/<int:file_id>', methods=['DELETE'])
+@login_required
+def delete_srt_file(file_id):
+    """
+    Deletes an SRT file and its associated translations.
+    """
+    srt_file = SrtFile.query.filter_by(id=file_id).first_or_404()
+    project = Project.query.filter_by(id=srt_file.project_id, user_id=current_user.id).first_or_404()
+
+    db.session.delete(srt_file)
+    db.session.commit()
+
+    return jsonify({'message': 'File deleted successfully'})
