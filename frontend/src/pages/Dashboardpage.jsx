@@ -15,7 +15,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch('/api/projects', { credentials: 'include' });
+        const res = await fetch('/api/projects/', { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           setProjects(data);
@@ -35,7 +35,7 @@ const DashboardPage = () => {
 
   const handleCreateProject = async (projectName) => {
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch('/api/projects/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
