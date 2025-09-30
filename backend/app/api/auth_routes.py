@@ -54,3 +54,33 @@ def logout():
 @login_required
 def status():
     return jsonify({'username': current_user.username})
+
+@auth_bp.route('/user', methods=['GET', 'PUT'])
+@login_required
+def user_profile():
+    if request.method == 'GET':
+        return jsonify({
+            'username': current_user.username,
+            'email': current_user.email
+        })
+    
+    if request.method == 'PUT':
+        data = request.get_json()
+        
+        # Check for uniqueness if username/email is being changed
+        if 'username' in data and data['username'] != current_user.username:
+            if User.query.filter_by(username=data['username']).first():
+                return jsonify({'error': 'Username already taken'}), 409
+            current_user.username = data['username']
+            
+        if 'email' in data and data['email'] != current_user.email:
+            if User.query.filter_by(email=data['email']).first():
+                return jsonify({'error': 'Email already registered'}), 409
+            current_user.email = data['email']
+        
+        try:
+            db.session.commit()
+            return jsonify({'message': 'Profile updated successfully'})
+        except IntegrityError:
+            db.session.rollback()
+            return jsonify({'error': 'An error occurred. Please try again.'}), 500

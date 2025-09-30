@@ -2,6 +2,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // <-- IMPORT THE CONTEXT
+import ProfileMenu from './ProfileMenu';
 
 const AppHeader = () => {
   const navigate = useNavigate();
@@ -31,12 +32,7 @@ const AppHeader = () => {
             {currentUser ? (
               <>
                 <span className="text-gray-300">Welcome, {currentUser.username}!</span>
-                <button
-                  onClick={handleSignOut}
-                  className="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors"
-                >
-                  SIGN OUT
-                </button>
+                <ProfileMenu onLogout={handleSignOut} />
               </>
             ) : (
               <>

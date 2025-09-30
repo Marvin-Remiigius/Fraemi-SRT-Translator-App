@@ -7,6 +7,7 @@ import SignUp from './assest/signup';
 import SignIn from './assest/signin';
 import ForgotPassword from './assest/forget';
 import DashboardPage from './pages/Dashboardpage';
+import SettingsPage from './pages/SettingsPage';
 import Layout from './components/Layout'; // <-- IMPORT THE NEW LAYOUT
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="dashboard" element={<DashboardPage />} />
+            <Route path="settings" element={<SettingsPage />} />
             {/* Add other pages that need the header here, e.g., /about */}
           </Route>
 
