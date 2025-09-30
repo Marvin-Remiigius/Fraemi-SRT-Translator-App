@@ -176,7 +176,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
           </div>
           <ul className="space-y-3">
             {originalFiles.map((file) => (
-              <OriginalFileCard key={file.id} file={file} onTranslate={handleTranslate} onDelete={handleDelete} />
+              <OriginalFileCard key={file.id} file={file} onTranslate={handleTranslate} onDelete={handleDelete} translatedFiles={translatedFiles} />
             ))}
             {originalFiles.length === 0 && <div className="text-center py-10 text-gray-500"><p>No original files yet.</p></div>}
           </ul>
@@ -201,7 +201,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
   );
 };
 
-const OriginalFileCard = ({ file, onTranslate, onDelete }) => {
+const OriginalFileCard = ({ file, onTranslate, onDelete, translatedFiles }) => {
   const [lang, setLang] = useState('en');
   const [isTranslating, setIsTranslating] = useState(false);
 
@@ -210,6 +210,8 @@ const OriginalFileCard = ({ file, onTranslate, onDelete }) => {
     await onTranslate(file.id, lang);
     setIsTranslating(false);
   };
+
+  const isTranslated = translatedFiles.some(t => t.original_filename === file.filename && t.target_language === lang);
 
   return (
     <li className="bg-gray-900 p-4 rounded-lg text-sm">
@@ -224,10 +226,14 @@ const OriginalFileCard = ({ file, onTranslate, onDelete }) => {
           <option value="fr">French</option>
           <option value="de">German</option>
         </select>
-        <button onClick={handleTranslateClick} disabled={isTranslating} className="bg-green-500 hover:bg-green-400 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center gap-1 disabled:bg-gray-500">
-          {isTranslating ? <Loader className="animate-spin" size={14} /> : <Languages size={14} />}
-          Translate
-        </button>
+        {isTranslated ? (
+          <span className="text-xs font-bold text-green-400">Translated</span>
+        ) : (
+          <button onClick={handleTranslateClick} disabled={isTranslating} className="bg-green-500 hover:bg-green-400 text-white font-bold py-1 px-3 rounded-lg text-xs flex items-center gap-1 disabled:bg-gray-500">
+            {isTranslating ? <Loader className="animate-spin" size={14} /> : <Languages size={14} />}
+            Translate
+          </button>
+        )}
       </div>
     </li>
   );
