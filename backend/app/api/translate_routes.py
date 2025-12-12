@@ -12,6 +12,7 @@ genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 translate_bp = Blueprint('translate', __name__)
 
 def translate_srt_content(srt_content, target_language):
+    print("[Translate] Starting translation to", target_language)
     """Helper function to translate SRT content and handle errors."""
     try:
         prompt = (
@@ -23,7 +24,7 @@ def translate_srt_content(srt_content, target_language):
             "4. Return only the complete, translated SRT content.\n\n"
             f"SRT content:\n{srt_content}"
         )
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-2.5-pro')
         response = model.generate_content(prompt)
         translated_srt = response.text
         list(srt.parse(translated_srt))  # Validate the output

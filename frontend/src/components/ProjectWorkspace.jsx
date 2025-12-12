@@ -164,6 +164,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
                 <option value="es">Spanish</option>
                 <option value="fr">French</option>
                 <option value="de">German</option>
+                <option value="ta">Tamil</option>
               </select>
               <button onClick={handleTranslateAll} disabled={isTranslating} className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-4 rounded-lg flex items-center gap-2 disabled:bg-gray-500">
                 {isTranslating ? <Loader className="animate-spin" size={18} /> : <Languages size={18} />}
