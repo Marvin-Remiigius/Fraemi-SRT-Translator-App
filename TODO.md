@@ -1,6 +1,7 @@
-- [x] Modify handleEdit in ProjectWorkspace.jsx to differentiate between original and translated files for editing.
-- [x] Ensure that when editing original files, the editable column shows original text.
-- [x] When editing translated files, the editable column shows translated text.
-- [x] After saving changes in AdvancedEditor, refresh or update the file content in ProjectWorkspace to reflect the saved changes.
-- [x] Fix the download issue for translated SRT files by correcting the API URLs to include /projects prefix.
-- [x] Add onSave callback to AdvancedEditor to refresh files after save.
+# Switch Database to Supabase
+
+- [x] Update backend/requirements.txt to add psycopg2-binary
+- [x] Modify backend/app/**init**.py to use Supabase DATABASE_URL
+- [x] Install new dependencies
+- [x] Test database connection
+- [x] Run database initialization if needed
