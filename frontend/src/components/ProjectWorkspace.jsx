@@ -226,6 +226,7 @@ const OriginalFileCard = ({ file, onTranslate, onDelete, translatedFiles }) => {
           <option value="es">Spanish</option>
           <option value="fr">French</option>
           <option value="de">German</option>
+          <option value="ta">Tamil</option>
         </select>
         {isTranslated ? (
           <span className="text-xs font-bold text-green-400">Translated</span>
