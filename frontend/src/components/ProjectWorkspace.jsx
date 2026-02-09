@@ -3,6 +3,8 @@ import AdvancedEditor from './AdvancedEditor.jsx';
 import { UploadCloud, Trash2, Languages, Download, Edit, Loader } from 'lucide-react';
 
 const ProjectWorkspace = ({ project, onBack, showToast }) => {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
   const [originalFiles, setOriginalFiles] = useState([]);
   const [translatedFiles, setTranslatedFiles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,7 +17,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
   const fetchOriginalFiles = async () => {
     if (!project || !project.id) return;
     try {
-      const res = await fetch(`/api/projects/${project.id}`);
+      const res = await fetch(`${BASE_URL}api/projects/${project.id}`);
       if (res.ok) {
         const data = await res.json();
         setOriginalFiles(data.files || []);
@@ -30,7 +32,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
   const fetchTranslatedFiles = async () => {
     if (!project || !project.id) return;
     try {
-      const res = await fetch(`/api/projects/${project.id}/translated-files`);
+      const res = await fetch(`${BASE_URL}api/projects/${project.id}/translated-files`);
       if (res.ok) {
         setTranslatedFiles(await res.json());
       } else {
@@ -62,14 +64,14 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
     for (const file of files) {
       const formData = new FormData();
       formData.append('file', file);
-      await fetch(`/api/projects/${project.id}/upload`, { method: 'POST', body: formData });
+      await fetch(`${BASE_URL}api/projects/${project.id}/upload`, { method: 'POST', body: formData });
     }
     if(fileInputRef.current) fileInputRef.current.value = "";
     fetchOriginalFiles();
   };
 
   const handleTranslate = async (fileId, lang) => {
-    await fetch('/api/translate/', {
+    await fetch(`${BASE_URL}api/translate/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ file_id: fileId, target_language: lang }),
@@ -88,7 +90,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
       return;
     }
     
-    await fetch(`/api/translate/${project.id}/translate-all`, {
+    await fetch(`${BASE_URL}api/translate/${project.id}/translate-all`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ target_language: targetLanguage }),
@@ -114,7 +116,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
 
 
   const handleDelete = async (fileId) => {
-    await fetch(`/api/projects/srt-files/${fileId}`, { method: 'DELETE' });
+    await fetch(`${BASE_URL}api/projects/srt-files/${fileId}`, { method: 'DELETE' });
     fetchOriginalFiles();
   };
 

@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { parseSRT, calculateCPS, getCPSColor } from '../utils/srtUtils.jsx';
 
 const AdvancedEditor = ({ file, showToast, onSave, onBack }) => {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
   const [parsedContent, setParsedContent] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -24,7 +26,7 @@ const AdvancedEditor = ({ file, showToast, onSave, onBack }) => {
     ).join('\n\n');
 
     try {
-      const response = await fetch(`/api/projects/translated-files/${file.id}/save`, {
+      const response = await fetch(`${BASE_URL}api/projects/translated-files/${file.id}/save`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: contentToSave }),

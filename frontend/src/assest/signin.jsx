@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext'; // <-- THIS PATH IS NOW CORRECT
 
 const SignIn = () => {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
   const navigate = useNavigate();
   const { login } = useAuth(); // <-- GET THE LOGIN FUNCTION FROM CONTEXT
   const [formData, setFormData] = useState({
@@ -22,7 +24,7 @@ const SignIn = () => {
     setMessage('');
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${BASE_URL}api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

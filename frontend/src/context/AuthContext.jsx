@@ -5,13 +5,15 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch('/api/auth/status');
+        const res = await fetch(`${BASE_URL}api/auth/status`);
         if (res.ok) {
           const data = await res.json();
           setCurrentUser({ username: data.username });
@@ -32,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await fetch(`${BASE_URL}api/auth/logout`, { method: 'POST' });
     } catch (error) {
       console.error('Error logging out:', error);
     }

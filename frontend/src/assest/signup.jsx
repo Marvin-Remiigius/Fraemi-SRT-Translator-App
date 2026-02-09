@@ -26,6 +26,8 @@ const calculatePasswordStrength = (password) => {
 };
 
 const SignUp = () => {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -58,7 +60,7 @@ const SignUp = () => {
     setLoading(true);
     setMessage('');
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(`${BASE_URL}api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),

@@ -24,8 +24,8 @@ def create_app():
     bcrypt.init_app(app)
     login_manager.init_app(app)
     
-    # Temporarily allow all origins for testing
-    CORS(app, supports_credentials=True, origins="*")
+    # Allow requests from your specific Vercel URL
+    CORS(app, resources={r"/api/*": {"origins": "https://fraemi-srt-translator.vercel.app"}})
 
     # --- CLI Commands ---
     @app.cli.command("init-db")

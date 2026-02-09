@@ -6,6 +6,8 @@ import Toast from '../components/Toast.jsx';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal.jsx';
 
 const DashboardPage = () => {
+  const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
   const [projects, setProjects] = useState([]);
   const [activeProject, setActiveProject] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,7 +17,7 @@ const DashboardPage = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch('/api/projects/', { credentials: 'include' });
+        const res = await fetch(`${BASE_URL}api/projects/`, { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           setProjects(data);
@@ -35,7 +37,7 @@ const DashboardPage = () => {
 
   const handleCreateProject = async (projectName) => {
     try {
-      const res = await fetch('/api/projects/', {
+      const res = await fetch(`${BASE_URL}api/projects/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
