@@ -25,7 +25,7 @@ def create_app():
     login_manager.init_app(app)
     
     # Allow requests from your specific Vercel URL
-    CORS(app, resources={r"/api/*": {"origins": "https://fraemi-srt-translator.vercel.app"}})
+    CORS(app, resources={r"/api/*": {"origins": "https://fraemi-srt-translator-app.vercel.app"}})
 
     # --- CLI Commands ---
     @app.cli.command("init-db")
