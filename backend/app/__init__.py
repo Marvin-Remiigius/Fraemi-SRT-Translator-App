@@ -1,41 +1,36 @@
-import os
-import click
-from flask import Flask, jsonify
-from flask_cors import CORS
-from flask_bcrypt import Bcrypt
-from flask_login import LoginManager
-from flask_sqlalchemy import SQLAlchemy
-
-# Initialize extensions outside the factory
-db = SQLAlchemy()
-bcrypt = Bcrypt()
-login_manager = LoginManager()
-
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
-    # --- Database Configuration ---
+    # --- Database & Session Configuration ---
     app.config['SECRET_KEY'] = os.urandom(24)
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres.gfyxaykogeiyxmdkiixa:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:6543/postgres')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
+    # NEW: Required to allow session cookies across different domains (Vercel to Render)
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+    app.config['SESSION_COOKIE_SECURE'] = True 
 
     # Initialize Extensions
     db.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
     
-    # Allow requests from your specific Vercel URL
-    CORS(app,supports_credentials=True ,resources={r"/api/*": {"origins": "https://fraemi-srt-translator-app.vercel.app"}})
+    # --- FIXED CORS CONFIGURATION ---
+    # NEW: Added supports_credentials=True so Flask accepts the frontend's cookies
+    CORS(app, supports_credentials=True, resources={
+        r"/api/*": {
+            "origins": [
+                "https://fraemi-srt-translator-app.vercel.app", 
+                "http://localhost:5173"  
+            ]
+        }
+    })
 
     # --- CLI Commands ---
     @app.cli.command("init-db")
     def init_db_command():
         """Clear existing data and create new tables."""
-        # Import models here so SQLAlchemy registers them
         from .models import User 
-        # If you have Project or other models, import them here too:
-        # from .models import User, Project, Translation
-        
         db.create_all()
         click.echo("Initialized the database (tables created).")
 
