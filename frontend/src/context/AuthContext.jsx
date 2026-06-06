@@ -13,7 +13,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const res = await fetch(`${BASE_URL}api/auth/status`);
+        const res = await fetch(`${BASE_URL}api/auth/status`, { credentials: 'include' });
         if (res.ok) {
           const data = await res.json();
           setCurrentUser({ username: data.username });
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await fetch(`${BASE_URL}api/auth/logout`, { method: 'POST' });
+      await fetch(`${BASE_URL}api/auth/logout`, { method: 'POST', credentials: 'include' });
     } catch (error) {
       console.error('Error logging out:', error);
     }
