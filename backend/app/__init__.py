@@ -23,7 +23,9 @@ def create_app():
     
     # Required to allow session cookies across different domains (Vercel to Render)
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-    app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'false').lower() == 'true'  # Default to True in production
+    # For cookies with SameSite=None, browsers require Secure cookies.
+    # Default to True unless explicitly overridden.
+    app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'true').lower() == 'true'
 
     # Initialize Extensions
     db.init_app(app)
