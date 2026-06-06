@@ -64,7 +64,7 @@ const DashboardPage = () => {
 
   const handleDeleteProject = async (projectIdToDelete) => {
     try {
-      const res = await fetch(`/api/projects/${projectIdToDelete}`, {
+      const res = await fetch(`${BASE_URL}api/projects/${projectIdToDelete}`, {
         method: 'DELETE',
         credentials: 'include',
       });
