@@ -15,11 +15,13 @@ def create_app():
     app = Flask(__name__, instance_relative_config=True)
 
     # --- Database & Session Configuration ---
-    app.config['SECRET_KEY'] = os.urandom(24)
+    # FIXED: Use a static environment variable for the Secret Key instead of regenerating it
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_fallback_secret_key_12345')
+    
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres.gfyxaykogeiyxmdkiixa:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:6543/postgres')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    # NEW: Required to allow session cookies across different domains (Vercel to Render)
+    # Required to allow session cookies across different domains (Vercel to Render)
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
     app.config['SESSION_COOKIE_SECURE'] = True 
 
@@ -29,7 +31,7 @@ def create_app():
     login_manager.init_app(app)
     
     # --- FIXED CORS CONFIGURATION ---
-    # NEW: Added supports_credentials=True so Flask accepts the frontend's cookies
+    # Added supports_credentials=True so Flask accepts the frontend's cookies
     CORS(app, supports_credentials=True, resources={
         r"/api/*": {
             "origins": [
