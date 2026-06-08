@@ -26,7 +26,7 @@ def create_app():
     # For cookies with SameSite=None, browsers require Secure cookies.
     # Default to True unless explicitly overridden.
     app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'true').lower() == 'true'
-
+    app.config['SESSION_COOKIE_DOMAIN'] = '.fraemivision.in'
     # Initialize Extensions
     db.init_app(app)
     bcrypt.init_app(app)
@@ -39,7 +39,8 @@ def create_app():
             "origins": [
                 "https://fraemi-srt-translator-app.vercel.app", 
                 "http://localhost:5173",
-                "http://127.0.0.1:5173"
+                "http://127.0.0.1:5173",
+                "https://app.fraemivision.in"
             ]
         }
     })
