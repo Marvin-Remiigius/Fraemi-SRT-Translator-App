@@ -30,6 +30,7 @@ const AdvancedEditor = ({ file, showToast, onSave, onBack }) => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: contentToSave }),
+        credentials: 'include' 
       });
       if (!response.ok) {
         throw new Error('Failed to save changes');

@@ -17,7 +17,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
   const fetchOriginalFiles = async () => {
     if (!project || !project.id) return;
     try {
-      const res = await fetch(`${BASE_URL}api/projects/${project.id}`);
+      const res = await fetch(`${BASE_URL}api/projects/${project.id}`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setOriginalFiles(data.files || []);
@@ -32,7 +32,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
   const fetchTranslatedFiles = async () => {
     if (!project || !project.id) return;
     try {
-      const res = await fetch(`${BASE_URL}api/projects/${project.id}/translated-files`);
+      const res = await fetch(`${BASE_URL}api/projects/${project.id}/translated-files`, { credentials: 'include' });
       if (res.ok) {
         setTranslatedFiles(await res.json());
       } else {
@@ -64,7 +64,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
     for (const file of files) {
       const formData = new FormData();
       formData.append('file', file);
-      await fetch(`${BASE_URL}api/projects/${project.id}/upload`, { method: 'POST', body: formData });
+      await fetch(`${BASE_URL}api/projects/${project.id}/upload`, { method: 'POST', body: formData, credentials: 'include' });
     }
     if(fileInputRef.current) fileInputRef.current.value = "";
     fetchOriginalFiles();
@@ -74,6 +74,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
     await fetch(`${BASE_URL}api/translate/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ file_id: fileId, target_language: lang }),
     });
     fetchTranslatedFiles();
@@ -93,6 +94,7 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
     await fetch(`${BASE_URL}api/translate/${project.id}/translate-all`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ target_language: targetLanguage }),
     });
 
@@ -116,12 +118,12 @@ const ProjectWorkspace = ({ project, onBack, showToast }) => {
 
 
   const handleDelete = async (fileId) => {
-    await fetch(`${BASE_URL}api/projects/srt-files/${fileId}`, { method: 'DELETE' });
+    await fetch(`${BASE_URL}api/projects/srt-files/${fileId}`, { method: 'DELETE', credentials: 'include' });
     fetchOriginalFiles();
   };
 
   const handleDownload = async (fileId, originalFilename, lang) => {
-    const res = await fetch(`/api/projects/translated-files/${fileId}/download`);
+    const res = await fetch(`${BASE_URL}api/projects/translated-files/${fileId}/download`, { credentials: 'include' });
     if (res.ok) {
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
