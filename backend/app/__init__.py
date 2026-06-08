@@ -5,6 +5,7 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.middleware.proxy_fix import ProxyFix
 
 # Initialize extensions outside the factory
 db = SQLAlchemy()
@@ -13,6 +14,8 @@ login_manager = LoginManager()
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
+    # Tell Flask it is behind Render's secure proxy
+    app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
     # --- Database & Session Configuration ---
     # FIXED: Use a static environment variable for the Secret Key instead of regenerating it
