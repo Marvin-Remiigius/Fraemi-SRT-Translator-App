@@ -21,12 +21,9 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres.gfyxaykogeiyxmdkiixa:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:6543/postgres')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    # Required to allow session cookies across different domains (Vercel to Render)
-    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
-    # For cookies with SameSite=None, browsers require Secure cookies.
-    # Default to True unless explicitly overridden.
-    app.config['SESSION_COOKIE_SECURE'] = os.environ.get('SESSION_COOKIE_SECURE', 'true').lower() == 'true'
-    app.config['SESSION_COOKIE_DOMAIN'] = '.fraemivision.in'
+    app.config['SESSION_COOKIE_DOMAIN'] = '.fraemivision.in'  # Must have the leading dot
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'             # Change 'None' back to 'Lax'
+    app.config['SESSION_COOKIE_SECURE'] = True
     # Initialize Extensions
     db.init_app(app)
     bcrypt.init_app(app)
