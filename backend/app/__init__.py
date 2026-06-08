@@ -60,6 +60,19 @@ def create_app():
     @login_manager.unauthorized_handler
     def unauthorized():
         return jsonify({'error': 'Authentication required. Please log in.'}), 401
+    
+    from flask import request
+
+    @app.after_request
+    def debug_headers(response):
+        # We only care about debugging the login route right now
+        if '/api/auth/login' in request.path:
+            print("\n=== 🛑 OUTBOUND LOGIN DEBUGGER 🛑 ===", flush=True)
+            print(f"1. Set-Cookie Header: {response.headers.get('Set-Cookie')}", flush=True)
+            print(f"2. Allowed Origin: {response.headers.get('Access-Control-Allow-Origin')}", flush=True)
+            print(f"3. Allow Credentials: {response.headers.get('Access-Control-Allow-Credentials')}", flush=True)
+            print("=======================================\n", flush=True)
+        return response
 
     # --- Register Blueprints ---
     from .api.auth_routes import auth_bp
