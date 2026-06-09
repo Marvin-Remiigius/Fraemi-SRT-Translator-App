@@ -24,8 +24,8 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres.gfyxaykogeiyxmdkiixa:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:6543/postgres')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    app.config['SESSION_COOKIE_DOMAIN'] = '.fraemivision.in'  # Must have the leading dot
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'             # Change 'None' back to 'Lax'
+    # app.config['SESSION_COOKIE_DOMAIN'] = '.fraemivision.in'
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'             # Change 'None' back to 'Lax'
     app.config['SESSION_COOKIE_SECURE'] = True
     # Initialize Extensions
     db.init_app(app)
@@ -34,16 +34,18 @@ def create_app():
     
     # --- FIXED CORS CONFIGURATION ---
     # Added supports_credentials=True so Flask accepts the frontend's cookies
-    CORS(app, supports_credentials=True, resources={
-        r"/api/*": {
-            "origins": [
-                "https://fraemi-srt-translator-app.vercel.app", 
-                "http://localhost:5173",
-                "http://127.0.0.1:5173",
-                "https://app.fraemivision.in"
-            ]
-        }
-    })
+    # CORS(app, supports_credentials=True, resources={
+    #     r"/api/*": {
+    #         "origins": [
+    #             "https://fraemi-srt-translator-app.vercel.app", 
+    #             "http://localhost:5173",
+    #             "http://127.0.0.1:5173",
+    #             "https://app.fraemivision.in"
+    #         ]
+    #     }
+    # })
+
+    CORS(app, supports_credentials=True, origins=["https://app.fraemivision.in"])
 
     # --- CLI Commands ---
     @app.cli.command("init-db")
