@@ -29,7 +29,7 @@ def create_app():
 
     # 2. Because they now share a domain, it is no longer cross-site. 
     # 'Lax' is the ultra-secure standard that Chrome loves and will never block.
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 
     # 3. Keeps it locked behind your Vercel/Render SSL certificates
     app.config['SESSION_COOKIE_SECURE'] = True
