@@ -1,12 +1,12 @@
 {
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "https://api.fraemivision.in/api/$1"
+      "source": "/api/:path*",
+      "destination": "https://api.fraemivision.in/api/:path*"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
