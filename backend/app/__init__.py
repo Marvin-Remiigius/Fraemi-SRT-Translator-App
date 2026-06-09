@@ -24,8 +24,14 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres.gfyxaykogeiyxmdkiixa:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:6543/postgres')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    # app.config['SESSION_COOKIE_DOMAIN'] = '.fraemivision.in'
-    app.config['SESSION_COOKIE_SAMESITE'] = 'None'             # Change 'None' back to 'Lax'
+    # 1. The leading dot is magic. It tells Chrome "Share this across all my subdomains"
+    app.config['SESSION_COOKIE_DOMAIN'] = '.fraemivision.in'
+
+    # 2. Because they now share a domain, it is no longer cross-site. 
+    # 'Lax' is the ultra-secure standard that Chrome loves and will never block.
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+
+    # 3. Keeps it locked behind your Vercel/Render SSL certificates
     app.config['SESSION_COOKIE_SECURE'] = True
     # Initialize Extensions
     db.init_app(app)
