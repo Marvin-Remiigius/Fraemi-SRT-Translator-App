@@ -1,12 +1,11 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { AuthContext } from './auth-context';
 
-const AuthContext = createContext();
-
-export const useAuth = () => useContext(AuthContext);
+// Module-level: derived from build-time env, so it never changes at runtime and
+// does not belong in effect dependency arrays.
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
 
 export const AuthProvider = ({ children }) => {
-  const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
-
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -41,11 +40,7 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser(null);
   };
 
-  const value = {
-    currentUser,
-    login,
-    logout,
-  };
+  const value = { currentUser, login, logout };
 
   return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
 };

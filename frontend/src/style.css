@@ -1,1 +1,243 @@
 @import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens
+
+   Palette: slightly cool neutrals (hue ~250, very low saturation) paired with a
+   warm gold accent. Cool base + warm accent is what stops a dark UI reading as
+   flat grey. The accent is a softened gold rather than Tailwind's default
+   yellow-400 (#facc15), which is acidic and reads as a warning colour.
+--------------------------------------------------------------------------- */
+@theme {
+  /* Surfaces, darkest to lightest */
+  --color-ink: #0a0a0e;        /* page background            */
+  --color-surface: #121217;    /* cards, panels              */
+  --color-surface-2: #1a1a21;  /* inputs, nested rows        */
+  --color-surface-3: #23232b;  /* hover on nested rows       */
+  --color-line: #26262f;       /* borders, dividers          */
+
+  /* Text */
+  --color-muted: #9a9aa8;      /* secondary text             */
+  --color-dim: #6b6b7a;        /* tertiary text, icons       */
+
+  /* Accent */
+  --color-brand: #f4c752;      /* primary actions            */
+  --color-brand-soft: #fad87c; /* accent hover               */
+  --color-brand-deep: #c9a03c; /* accent pressed / borders   */
+
+  /* Typography */
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono',
+    Menlo, Consolas, 'Liberation Mono', monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-ink);
+    color: #f2f2f5;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /* Inter's tabular/contextual defaults look better with these on. */
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'ss01';
+  }
+
+  /* Without this, headings fall back to the UA black and vanish on dark panels. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: inherit;
+    letter-spacing: -0.02em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+
+  /* Native select dropdowns render white-on-white without this. */
+  option {
+    background-color: var(--color-surface-2);
+    color: #f2f2f5;
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--color-brand) 30%, transparent);
+    color: #fff;
+  }
+
+  ::placeholder {
+    color: var(--color-dim);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Depth
+
+   Flat fills are what make a dark UI look unfinished. Each raised surface gets
+   a faint top-down light gradient plus a 1px highlight along its top edge, so
+   panels read as lit from above instead of as grey rectangles.
+--------------------------------------------------------------------------- */
+.surface-lit {
+  background-image: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.045),
+    rgba(255, 255, 255, 0) 140px
+  );
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Primary buttons: a warm halo so the accent feels lit rather than pasted on. */
+.glow-brand {
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.25) inset,
+    0 8px 24px -10px rgba(244, 199, 82, 0.55);
+}
+
+.glow-brand:hover {
+  box-shadow:
+    0 1px 0 0 rgba(255, 255, 255, 0.3) inset,
+    0 10px 28px -8px rgba(244, 199, 82, 0.7);
+}
+
+/* Ambient light behind hero sections. Pure CSS, so it never depends on an
+   image loading, and it carries the design on its own. */
+.ambient::before {
+  content: '';
+  position: absolute;
+  inset: -20% 0 auto;
+  height: 70vh;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 55% at 50% 0%, rgba(244, 199, 82, 0.16), transparent 70%),
+    radial-gradient(40% 40% at 85% 15%, rgba(120, 110, 255, 0.1), transparent 70%);
+  filter: blur(8px);
+}
+
+/* Fine grid, barely visible, to give large empty areas some texture. */
+.grid-texture::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 0%, #000 20%, transparent 100%);
+  mask-image: radial-gradient(70% 60% at 50% 0%, #000 20%, transparent 100%);
+}
+
+/* ---------------------------------------------------------------------------
+   Toast transition — the classes react-transition-group expects for
+   classNames="toast". These were referenced but never defined.
+--------------------------------------------------------------------------- */
+.toast-enter {
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
+}
+
+.toast-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 220ms ease-out, transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.toast-exit {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.toast-exit-active {
+  opacity: 0;
+  transform: translateY(12px) scale(0.96);
+  transition: opacity 180ms ease-in, transform 180ms ease-in;
+}
+
+/* ---------------------------------------------------------------------------
+   Scrollbar — referenced by AdvancedEditor as `custom-scrollbar`.
+--------------------------------------------------------------------------- */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--color-line);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-surface-3);
+  background-clip: content-box;
+}
+
+/* ---------------------------------------------------------------------------
+   Entrance animations
+--------------------------------------------------------------------------- */
+@keyframes fv-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fv-scale-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-up {
+  animation: fv-fade-up 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.animate-scale-in {
+  animation: fv-scale-in 200ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+/* Stagger helpers for hero content. Named `stagger-*` rather than `delay-*` so
+   they are not confused with Tailwind's transition-delay utilities. */
+.stagger-1 { animation-delay: 70ms; }
+.stagger-2 { animation-delay: 140ms; }
+.stagger-3 { animation-delay: 210ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

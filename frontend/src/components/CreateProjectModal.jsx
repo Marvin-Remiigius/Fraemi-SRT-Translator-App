@@ -1,41 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Modal from './Modal.jsx';
 
 const CreateProjectModal = ({ isOpen, onClose, onCreate }) => {
   const [projectName, setProjectName] = useState('');
 
+  // Clear the field each time the dialog opens.
+  useEffect(() => {
+    if (isOpen) setProjectName('');
+  }, [isOpen]);
+
+  const trimmed = projectName.trim();
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (projectName.trim()) {
-      onCreate(projectName.trim());
-      setProjectName('');
-      onClose();
-    }
+    if (!trimmed) return;
+    onCreate(trimmed);
+    onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50" onClick={onClose}>
-      <div className="bg-gray-800 w-full max-w-md rounded-2xl p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-2xl font-bold mb-6 text-white">Create a New Project</h2>
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="new-project-name" className="block text-sm font-medium text-gray-400 mb-2">Project Name</label>
-          <input
-            type="text"
-            id="new-project-name"
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            placeholder="e.g., Movie Title - Language Dub"
-            className="w-full p-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            autoFocus
-          />
-          <div className="mt-8 flex justify-end space-x-4">
-            <button type="button" onClick={onClose} className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-5 rounded-lg transition-colors">Cancel</button>
-            <button type="submit" className="bg-yellow-400 hover:bg-yellow-300 text-black font-bold py-2 px-5 rounded-lg transition-colors">Create</button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Create a new project"
+      description="Give it a name you'll recognise later — usually the title and the language you're dubbing into."
+    >
+      <form onSubmit={handleSubmit}>
+        <label
+          htmlFor="new-project-name"
+          className="mb-2 block text-sm font-medium text-neutral-200"
+        >
+          Project name
+        </label>
+        <input
+          type="text"
+          id="new-project-name"
+          value={projectName}
+          onChange={(e) => setProjectName(e.target.value)}
+          placeholder="e.g. Interstellar — Tamil dub"
+          className="w-full rounded-lg border border-line bg-surface-2 p-3 text-white
+                     placeholder-dim transition-colors focus:border-brand/50 focus:outline-none"
+          autoFocus
+        />
+
+        <div className="mt-7 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-lg px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:bg-white/5 hover:text-white"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={!trimmed}
+            className="glow-brand rounded-lg bg-brand px-5 py-2.5 text-sm font-bold text-black transition-all
+                       hover:bg-brand-soft disabled:cursor-not-allowed disabled:bg-surface-3 disabled:text-dim disabled:shadow-none"
+          >
+            Create project
+          </button>
+        </div>
+      </form>
+    </Modal>
   );
 };
 

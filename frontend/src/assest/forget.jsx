@@ -1,49 +1,42 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Mail, Info } from 'lucide-react';
+import AuthLayout from '../components/AuthLayout';
 
-const ForgotPassword = () => {
-  return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-neutral-900 rounded-2xl p-8 shadow-lg">
-        
-        <h2 className="text-3xl font-bold text-center text-white mb-4 tracking-tighter">
-          Forgot Password
-        </h2>
-        <p className="text-center text-neutral-400 mb-8 text-sm">
-          Enter your email to receive a password reset link.
-        </p>
-
-        <form className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              placeholder="you@example.com"
-              className="w-full p-3 bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-shadow"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-yellow-400 text-black text-base font-semibold py-3 px-4 rounded-full hover:bg-yellow-300 transition-colors mt-4"
-          >
-            Send Reset Link
-          </button>
-        </form>
-
-        <div className="text-center mt-8">
-          <Link to="/signin" className="text-sm font-medium text-neutral-400 hover:text-white transition-colors">
-            &larr; Back to Sign In
-          </Link>
-        </div>
-      </div>
+// There is no password-reset endpoint on the backend yet. Rather than show a
+// form that silently does nothing on submit, this page is explicit about it.
+const ForgotPassword = () => (
+  <AuthLayout
+    title="Forgot your password?"
+    subtitle="Self-service password reset isn’t available yet."
+    footer={
+      <>
+        Remembered it?{' '}
+        <Link
+          to="/signin"
+          className="font-semibold text-brand transition-colors hover:text-brand-soft"
+        >
+          Back to sign in
+        </Link>
+      </>
+    }
+  >
+    <div className="flex items-start gap-3 rounded-xl border border-line bg-surface-2/60 p-4">
+      <Info size={17} className="mt-0.5 shrink-0 text-brand" aria-hidden="true" />
+      <p className="text-sm leading-relaxed text-muted">
+        We’re still building this. In the meantime, email us and we’ll reset your account
+        manually.
+      </p>
     </div>
-  );
-};
+
+    <a
+      href="mailto:support@fraemivision.in?subject=Password%20reset%20request"
+      className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand
+                 px-4 py-3 text-sm font-bold text-black transition-colors hover:bg-brand-soft"
+    >
+      <Mail size={16} /> Email support
+    </a>
+  </AuthLayout>
+);
 
 export default ForgotPassword;

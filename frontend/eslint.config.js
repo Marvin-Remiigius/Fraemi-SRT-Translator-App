@@ -23,7 +23,13 @@ export default defineConfig([
       },
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+      // argsIgnorePattern matches varsIgnorePattern so that capitalised
+      // destructured props (`({ Icon }) => <Icon />`) are not reported as
+      // unused — without eslint-plugin-react, JSX usage is invisible here.
+      'no-unused-vars': [
+        'error',
+        { varsIgnorePattern: '^[A-Z_]', argsIgnorePattern: '^[A-Z_]' },
+      ],
     },
   },
 ])

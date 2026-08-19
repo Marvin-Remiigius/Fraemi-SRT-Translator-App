@@ -11,11 +11,21 @@ genai.configure(api_key=os.environ.get("GOOGLE_API_KEY"))
 
 translate_bp = Blueprint('translate', __name__)
 
+# The frontend sends ISO codes. Resolving them to full names gives the model a
+# far less ambiguous instruction than a bare "ml" or "ta".
+LANGUAGE_NAMES = {
+    'en': 'English', 'es': 'Spanish', 'fr': 'French', 'de': 'German',
+    'hi': 'Hindi', 'ta': 'Tamil', 'te': 'Telugu', 'ml': 'Malayalam',
+    'kn': 'Kannada', 'ja': 'Japanese', 'ko': 'Korean', 'zh': 'Chinese',
+    'pt': 'Portuguese', 'it': 'Italian', 'ar': 'Arabic',
+}
+
 def translate_srt_content(srt_content, target_language):
     """Helper function to translate SRT content and handle errors."""
     try:
+        language_name = LANGUAGE_NAMES.get(target_language, target_language)
         prompt = (
-            f"You are an expert translator for movie subtitles. Your task is to translate the following SRT content into {target_language}. "
+            f"You are an expert translator for movie subtitles. Your task is to translate the following SRT content into {language_name}. "
             "Follow these rules strictly:\n"
             "1. Translate the dialogue text for each subtitle entry.\n"
             "2. Do NOT alter the timestamps or the sequence numbers.\n"

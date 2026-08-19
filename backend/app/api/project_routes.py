@@ -6,16 +6,40 @@ from .. import db
 project_bp = Blueprint('projects', __name__)
 
 # --- GET and CREATE Projects (No changes) ---
-import pytz
-from datetime import datetime
+from sqlalchemy import func
 
 @project_bp.route('/', methods=['GET'])
 @login_required
 def get_projects():
-    # ... (existing code) ...
     projects = Project.query.filter_by(user_id=current_user.id).order_by(Project.created_at.desc()).all()
+    project_ids = [p.id for p in projects]
+
+    # Counts are aggregated in two grouped queries rather than per project, so
+    # the dashboard does not fire N+1 queries as the project list grows.
+    file_counts = {}
+    translation_counts = {}
+    if project_ids:
+        file_counts = dict(
+            db.session.query(SrtFile.project_id, func.count(SrtFile.id))
+            .filter(SrtFile.project_id.in_(project_ids))
+            .group_by(SrtFile.project_id)
+            .all()
+        )
+        translation_counts = dict(
+            db.session.query(TranslatedFile.project_id, func.count(TranslatedFile.id))
+            .filter(TranslatedFile.project_id.in_(project_ids))
+            .group_by(TranslatedFile.project_id)
+            .all()
+        )
+
     projects_list = [
-        {'id': p.id, 'name': p.project_name, 'created': p.created_at.strftime('%Y-%m-%d')}
+        {
+            'id': p.id,
+            'name': p.project_name,
+            'created': p.created_at.strftime('%Y-%m-%d'),
+            'file_count': file_counts.get(p.id, 0),
+            'translation_count': translation_counts.get(p.id, 0),
+        }
         for p in projects
     ]
     return jsonify(projects_list)
@@ -41,7 +65,13 @@ def create_project():
     #Creating a new database session
     db.session.add(new_project)
     db.session.commit()
-    return jsonify({'id': new_project.id, 'name': new_project.project_name, 'created': new_project.created_at.strftime('%Y-%m-%d')}), 201
+    return jsonify({
+        'id': new_project.id,
+        'name': new_project.project_name,
+        'created': new_project.created_at.strftime('%Y-%m-%d'),
+        'file_count': 0,
+        'translation_count': 0,
+    }), 201
 
 @project_bp.route('/<int:project_id>', methods=['DELETE'])
 @login_required

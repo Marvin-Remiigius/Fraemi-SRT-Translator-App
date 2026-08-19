@@ -1,37 +1,68 @@
 import React from 'react';
-import { Trash2 } from 'lucide-react';
+import { Trash2, FileText, Languages, CalendarDays, ArrowUpRight } from 'lucide-react';
+
+const Meta = ({ Icon, children }) => (
+  <span className="inline-flex items-center gap-1.5 text-xs text-muted">
+    <Icon size={13} aria-hidden="true" />
+    {children}
+  </span>
+);
 
 const ProjectCard = ({ project, onClick, onDeleteClick }) => {
-  const statusColors = {
-    'Completed': 'text-green-400',
-    'In Progress': 'text-yellow-400',
-    'Not Started': 'text-red-400'
-  };
+  // These counts are optional — older API responses omit them, so only render
+  // a badge when the backend actually sent a number.
+  const fileCount = project.file_count;
+  const translationCount = project.translation_count;
 
   return (
     <div
-      onClick={onClick}
-      className="relative bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-yellow-400/20 hover:-translate-y-1 transition-all cursor-pointer"
+      className="surface-lit group relative rounded-2xl border border-line bg-surface p-5 transition-all
+                 hover:-translate-y-0.5 hover:border-brand/35 hover:shadow-xl hover:shadow-black/50
+                 focus-within:border-brand/35"
     >
+      {/* Full-card click target, sits behind the content. */}
       <button
+        type="button"
+        onClick={onClick}
+        className="absolute inset-0 z-0 rounded-2xl"
+        aria-label={`Open project ${project.name}`}
+      />
+
+      <div className="pointer-events-none relative z-10">
+        {/* pr-10 keeps the title clear of the delete button. */}
+        <h3 className="truncate pr-10 text-lg font-semibold text-white" title={project.name}>
+          {project.name}
+        </h3>
+
+        <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line pt-4">
+          <Meta Icon={CalendarDays}>{project.created}</Meta>
+          {typeof fileCount === 'number' && (
+            <Meta Icon={FileText}>
+              {fileCount} {fileCount === 1 ? 'file' : 'files'}
+            </Meta>
+          )}
+          {typeof translationCount === 'number' && translationCount > 0 && (
+            <Meta Icon={Languages}>{translationCount} translated</Meta>
+          )}
+          <span className="ml-auto inline-flex items-center gap-1 text-xs font-medium text-dim transition-colors group-hover:text-brand">
+            Open <ArrowUpRight size={13} aria-hidden="true" />
+          </span>
+        </div>
+      </div>
+
+      <button
+        type="button"
         onClick={(e) => {
-          e.stopPropagation(); 
+          e.stopPropagation();
           onDeleteClick();
         }}
-        className="absolute top-3 right-3 p-1.5 text-gray-500 hover:bg-red-500/20 hover:text-red-400 rounded-full transition-colors"
-        aria-label="Delete project"
+        className="absolute top-3 right-3 z-20 rounded-lg p-2 text-dim opacity-100 transition-all
+                   hover:bg-red-500/10 hover:text-red-400 focus-visible:opacity-100
+                   md:opacity-0 md:group-hover:opacity-100"
+        aria-label={`Delete project ${project.name}`}
       >
-        <Trash2 size={18} />
+        <Trash2 size={16} />
       </button>
-
-      <h3 className="text-xl font-bold mb-2 pr-8 truncate">{project.name}</h3>
-      <p className="text-gray-400 text-sm">Created: {project.created}</p>
-      <div className="mt-4 pt-4 border-t border-gray-700 flex justify-between items-center">
-        <span className={`text-xs font-semibold uppercase tracking-wider ${statusColors[project.status]}`}>
-          {project.status}
-        </span>
-        <div className="text-gray-400 text-sm">Target: {project.targetLang}</div>
-      </div>
     </div>
   );
 };
