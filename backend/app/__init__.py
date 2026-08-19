@@ -21,11 +21,21 @@ def create_app():
     # FIXED: Use a static environment variable for the Secret Key instead of regenerating it
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev_fallback_secret_key_12345')
     
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgresql://postgres.gfyxaykogeiyxmdkiixa:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:6543/postgres')
+    # No hardcoded fallback: the previous default embedded the Supabase host and
+    # user in source control, and its placeholder password could never connect
+    # anyway — it only turned a missing-config error into a confusing one.
+    database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        raise RuntimeError(
+            'DATABASE_URL is not set. Configure it in the environment '
+            '(Render dashboard, or a local .env) before starting the app.'
+        )
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # 2. Because they now share a domain, it is no longer cross-site. 
-    # 'Lax' is the ultra-secure standard that Chrome loves and will never block.
+    # The frontend is served from a different origin than this API, so the
+    # session cookie must be SameSite=None, which browsers only honour when
+    # Secure is also set.
     app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 
     # 3. Keeps it locked behind your Vercel/Render SSL certificates
@@ -69,19 +79,6 @@ def create_app():
     def unauthorized():
         return jsonify({'error': 'Authentication required. Please log in.'}), 401
     
-    from flask import request
-
-    @app.after_request
-    def debug_headers(response):
-        # We only care about debugging the login route right now
-        if '/api/auth/login' in request.path:
-            print("\n=== 🛑 OUTBOUND LOGIN DEBUGGER 🛑 ===", flush=True)
-            print(f"1. Set-Cookie Header: {response.headers.get('Set-Cookie')}", flush=True)
-            print(f"2. Allowed Origin: {response.headers.get('Access-Control-Allow-Origin')}", flush=True)
-            print(f"3. Allow Credentials: {response.headers.get('Access-Control-Allow-Credentials')}", flush=True)
-            print("=======================================\n", flush=True)
-        return response
-
     # --- Register Blueprints ---
     from .api.auth_routes import auth_bp
     from .api.project_routes import project_bp
